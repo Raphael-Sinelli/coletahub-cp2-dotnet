@@ -484,4 +484,3 @@ $RECYCLE.BIN/
 # Entrega local (zip gerado pelo empacotar.ps1)
 ColetaHub_CP2.zip
 node_modules/
-docs/prints/_tools/

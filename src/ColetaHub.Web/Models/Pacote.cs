@@ -37,7 +37,7 @@ public class Pacote : IValidatableObject
     /// (IMarketplaceService → PacoteFormViewModel.Marketplaces).
     /// </summary>
     [Required(ErrorMessage = "Selecione o marketplace de origem.")]
-    [StringLength(30)]
+    [StringLength(30, ErrorMessage = "O marketplace deve ter no máximo 30 caracteres.")]
     [Display(Name = "Marketplace")]
     public string Marketplace { get; set; } = string.Empty;
 
