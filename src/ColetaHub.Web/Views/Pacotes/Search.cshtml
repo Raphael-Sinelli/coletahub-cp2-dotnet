@@ -14,14 +14,14 @@
 @* Formulário GET: os filtros vão para a query string, então a busca pode ser compartilhada por link. *@
 <form asp-action="Search" method="get" class="card-painel filtros" role="search">
     <div class="row g-3 align-items-end">
-        <div class="col-lg-4">
+        <div class="col-lg-3">
             <label asp-for="Texto" class="form-label"></label>
             <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-search" aria-hidden="true"></i></span>
                 <input asp-for="Texto" class="form-control" placeholder="Ex.: QB4829 ou Ferreira" autocomplete="off" />
             </div>
         </div>
-        <div class="col-sm-6 col-lg-2">
+        <div class="col-sm-6 col-lg-3">
             <label asp-for="Status" class="form-label"></label>
             <select asp-for="Status" asp-items="Html.GetEnumSelectList<StatusPacote>()" class="form-select">
                 <option value="">Todos</option>
@@ -80,13 +80,11 @@
                     <caption class="visually-hidden">Resultado da pesquisa de pacotes</caption>
                     <thead>
                         <tr>
-                            <th scope="col">Código</th>
+                            <th scope="col">Pacote</th>
                             <th scope="col">Destinatário</th>
-                            <th scope="col">Marketplace</th>
                             <th scope="col">Status</th>
-                            <th scope="col">Recebido em</th>
-                            <th scope="col">No ponto</th>
-                            <th scope="col" class="text-lg-end">Valor</th>
+                            <th scope="col">Recebimento</th>
+                            <th scope="col" class="text-md-end">Valor</th>
                             <th scope="col" class="text-end"><span class="visually-hidden">Ações</span></th>
                         </tr>
                     </thead>

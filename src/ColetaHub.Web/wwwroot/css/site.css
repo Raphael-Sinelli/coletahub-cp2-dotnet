@@ -688,7 +688,6 @@ a.codigo:hover {
     display: inline-flex;
     align-items: center;
     gap: .25rem;
-    margin-left: .35rem;
     padding: .1rem .45rem;
     border-radius: 5px;
     font-size: .72rem;
@@ -696,6 +695,26 @@ a.codigo:hover {
     color: #8a4b00;
     background: var(--ch-ambar-100);
     vertical-align: middle;
+}
+
+.celula-pacote,
+.celula-recebimento {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .3rem;
+}
+
+.celula-pacote__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .25rem .6rem;
+    font-size: .85rem;
+}
+
+.tabela-pacotes td[data-label="Destinatário"] {
+    min-width: 12rem;
 }
 
 /* Marcador de marketplace: um ponto colorido antes do nome. */
@@ -762,8 +781,18 @@ a.codigo:hover {
         text-align: left;
     }
 
-    .tabela-pacotes td[data-label="Código"] {
+    .tabela-pacotes td[data-label="Pacote"] {
         padding-bottom: .5rem;
+    }
+
+    .celula-pacote,
+    .celula-recebimento {
+        align-items: flex-end;
+    }
+
+    .celula-recebimento {
+        flex-direction: row;
+        align-items: center;
     }
 
     .tabela-pacotes td.acoes {
@@ -1169,6 +1198,11 @@ a.codigo:hover {
     flex-wrap: wrap;
     justify-content: space-between;
     gap: .25rem 1rem;
+}
+
+.rodape__lista--integrantes li {
+    flex-direction: column;
+    gap: .1rem;
 }
 
 .rodape__lista--links li {

@@ -1,24 +1,32 @@
 @model Pacote
 @* Linha da tabela de pacotes, compartilhada pela Index e pela Pesquisa. Os data-label viram rótulos no layout de cartões do celular. *@
 <tr>
-    <td data-label="Código">
-        <a class="codigo" asp-controller="Pacotes" asp-action="Details" asp-route-id="@Model.Id">@Model.CodigoRastreio</a>
-        @if (Model.Fragil)
-        {
-            <span class="tag-fragil" title="Frágil: manusear com cuidado"><i class="bi bi-exclamation-diamond-fill" aria-hidden="true"></i> Frágil</span>
-        }
+    <td data-label="Pacote">
+        <div class="celula-pacote">
+            <a class="codigo" asp-controller="Pacotes" asp-action="Details" asp-route-id="@Model.Id">@Model.CodigoRastreio</a>
+            <span class="celula-pacote__meta">
+                <span class="marketplace" data-marketplace="@Model.Marketplace">@Model.Marketplace</span>
+                @if (Model.Fragil)
+                {
+                    <span class="tag-fragil" title="Frágil: manusear com cuidado"><i class="bi bi-exclamation-diamond-fill" aria-hidden="true"></i> Frágil</span>
+                }
+            </span>
+        </div>
     </td>
     <td data-label="Destinatário">
-        <div class="fw-semibold">@Model.NomeDestinatario</div>
-        <div class="small text-suave font-mono">@Model.CpfMascarado</div>
-    </td>
-    <td data-label="Marketplace">
-        <span class="marketplace" data-marketplace="@Model.Marketplace">@Model.Marketplace</span>
+        <div>
+            <div class="fw-semibold">@Model.NomeDestinatario</div>
+            <div class="small text-suave font-mono text-nowrap">@Model.CpfMascarado</div>
+        </div>
     </td>
     <td data-label="Status"><status-badge status="@Model.Status" /></td>
-    <td data-label="Recebido em" class="text-nowrap">@Model.DataRecebimento.ToString("d")</td>
-    <td data-label="No ponto"><prazo-alerta dias="@Model.DiasNoPonto" encerrado="@(!Model.EstaNoPonto)" /></td>
-    <td data-label="Valor" class="text-lg-end text-nowrap"><moeda valor="@Model.ValorDeclarado" /></td>
+    <td data-label="Recebimento">
+        <div class="celula-recebimento">
+            <span class="text-nowrap">@Model.DataRecebimento.ToString("d")</span>
+            <prazo-alerta dias="@Model.DiasNoPonto" encerrado="@(!Model.EstaNoPonto)" />
+        </div>
+    </td>
+    <td data-label="Valor" class="text-md-end"><moeda valor="@Model.ValorDeclarado" /></td>
     <td class="acoes">
         <div class="acoes__grupo">
             <botao-acao tipo="detalhes" id="@Model.Id" descricao="@Model.CodigoRastreio" compacto="true" />

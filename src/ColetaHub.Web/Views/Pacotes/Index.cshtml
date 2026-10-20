@@ -14,7 +14,7 @@
     <div>
         <p class="sobretitulo">Ponto Vila Mariana</p>
         <h1 class="titulo-pagina">Pacotes</h1>
-        <p class="text-suave mb-0">@Model.Count pacotes registrados · clique no cabeçalho para ordenar por código, data ou status.</p>
+        <p class="text-suave mb-0">@Model.Count pacotes registrados · clique em Pacote, Status ou Recebimento para ordenar.</p>
     </div>
     <div class="cabecalho-pagina__acoes">
         <a class="btn btn-outline-primary" asp-action="Search"><i class="bi bi-search" aria-hidden="true"></i> Pesquisar</a>
@@ -38,11 +38,10 @@ else
                     <tr>
                         <th scope="col" aria-sort="@AriaSort("codigo")">
                             <a class="ordenacao" asp-action="Index" asp-route-ordenarPor="codigo" asp-route-decrescente="@ProximaDirecao("codigo")">
-                                Código <i class="bi @IconeOrdenacao("codigo")" aria-hidden="true"></i>
+                                Pacote <i class="bi @IconeOrdenacao("codigo")" aria-hidden="true"></i>
                             </a>
                         </th>
                         <th scope="col">Destinatário</th>
-                        <th scope="col">Marketplace</th>
                         <th scope="col" aria-sort="@AriaSort("status")">
                             <a class="ordenacao" asp-action="Index" asp-route-ordenarPor="status" asp-route-decrescente="@ProximaDirecao("status")">
                                 Status <i class="bi @IconeOrdenacao("status")" aria-hidden="true"></i>
@@ -50,11 +49,10 @@ else
                         </th>
                         <th scope="col" aria-sort="@AriaSort("data")">
                             <a class="ordenacao" asp-action="Index" asp-route-ordenarPor="data" asp-route-decrescente="@ProximaDirecao("data")">
-                                Recebido em <i class="bi @IconeOrdenacao("data")" aria-hidden="true"></i>
+                                Recebimento <i class="bi @IconeOrdenacao("data")" aria-hidden="true"></i>
                             </a>
                         </th>
-                        <th scope="col">No ponto</th>
-                        <th scope="col" class="text-lg-end">Valor</th>
+                        <th scope="col" class="text-md-end">Valor</th>
                         <th scope="col" class="text-end"><span class="visually-hidden">Ações</span></th>
                     </tr>
                 </thead>

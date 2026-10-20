@@ -33,7 +33,7 @@
 
     <header class="topo">
         <nav class="navbar navbar-expand-lg navbar-dark" aria-label="Menu principal">
-            <div class="container">
+            <div class="container-xxl">
                 <a class="navbar-brand marca" asp-controller="Home" asp-action="Index">
                     <svg class="marca__logo" viewBox="0 0 32 32" width="36" height="36" aria-hidden="true">
                         <rect width="32" height="32" rx="9" fill="#F2A541" />
@@ -74,13 +74,13 @@
         </nav>
     </header>
 
-    <main id="conteudo" class="container conteudo">
+    <main id="conteudo" class="container-xxl conteudo">
         <partial name="_Alertas" />
         @RenderBody()
     </main>
 
     <footer class="rodape">
-        <div class="container">
+        <div class="container-xxl">
             <div class="row g-4">
                 <div class="col-lg-5">
                     <div class="rodape__marca">Coleta<strong>Hub</strong></div>
@@ -92,7 +92,7 @@
                 </div>
                 <div class="col-sm-7 col-lg-4">
                     <h2 class="rodape__titulo">Integrantes</h2>
-                    <ul class="rodape__lista">
+                    <ul class="rodape__lista rodape__lista--integrantes">
                         <li><span>Raphael Oliveira Sinelli Mendonça</span><span class="rodape__rm">RM 568346</span></li>
                         <li><span>Henrique Spoltore Moreno Pavão dos Santos</span><span class="rodape__rm">RM 568130</span></li>
                     </ul>
