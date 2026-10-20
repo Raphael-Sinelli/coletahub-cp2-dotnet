@@ -1,0 +1,22 @@
+sequenceDiagram
+    actor O as Operador
+    participant I as Index (navegador)
+    participant M as Modal Bootstrap
+    participant C as PacotesController
+    participant R as IPacoteRepository
+
+    O->>I: Clica em excluir (botao-acao modal="true")
+    I->>M: Abre #modalExclusao com código e URL do pacote
+    alt Cancelar
+        O->>M: Cancelar / Esc
+        M-->>I: Nada é enviado
+    else Confirmar exclusão
+        O->>M: Confirmar exclusão
+        M->>C: POST /Pacotes/Delete/{id} + __RequestVerificationToken
+        C->>C: [ValidateAntiForgeryToken]
+        C->>R: Remover(id)
+        R-->>C: true
+        C-->>I: 302 RedirectToAction(Index) + TempData["Sucesso"]
+        I-->>O: Lista atualizada e alerta que some sozinho
+    end
+    Note over O,C: Sem JavaScript, o mesmo link abre GET /Pacotes/Delete/{id}<br/>(página de confirmação) e o POST só ocorre no botão Confirmar.

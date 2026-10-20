@@ -1,0 +1,155 @@
+classDiagram
+    direction LR
+
+    class Pacote {
+        +int Id
+        +string CodigoRastreio
+        +string NomeDestinatario
+        +string CpfDestinatario
+        +string Marketplace
+        +decimal PesoKg
+        +decimal ValorDeclarado
+        +DateTime DataRecebimento
+        +DateTime? DataRetirada
+        +StatusPacote Status
+        +TipoOperacao TipoOperacao
+        +bool Fragil
+        +string? Observacoes
+        +bool EstaNoPonto
+        +int DiasNoPonto
+        +string CpfMascarado
+        +Validate(ValidationContext) IEnumerable~ValidationResult~
+        +Clonar() Pacote
+    }
+    class IValidatableObject {
+        <<interface>>
+    }
+    class StatusPacote {
+        <<enumeration>>
+        Recebido
+        AguardandoRetirada
+        AguardandoColeta
+        Retirado
+        Coletado
+        Devolvido
+    }
+    class TipoOperacao {
+        <<enumeration>>
+        RetiradaCliente
+        ColetaTransportadora
+        Devolucao
+    }
+    class FiltroPacote {
+        +string? Texto
+        +StatusPacote? Status
+        +string? Marketplace
+        +DateTime? RecebidoDe
+        +DateTime? RecebidoAte
+    }
+    class DataNaoFuturaAttribute {
+        +IsValid(object, ValidationContext) ValidationResult
+        +AddValidation(ClientModelValidationContext)
+    }
+
+    class IPacoteRepository {
+        <<interface>>
+        +ObterTodos() IReadOnlyList~Pacote~
+        +ObterPorId(int) Pacote?
+        +Adicionar(Pacote) Pacote
+        +Atualizar(Pacote) bool
+        +Remover(int) bool
+        +Pesquisar(FiltroPacote) IReadOnlyList~Pacote~
+        +CodigoJaCadastrado(string, int?) bool
+    }
+    class InMemoryPacoteRepository {
+        -ConcurrentDictionary~int, Pacote~ _pacotes
+        -int _ultimoId
+    }
+    class PacoteSeed {
+        <<static>>
+        +Criar() IReadOnlyList~Pacote~
+    }
+    class IMarketplaceService {
+        <<interface>>
+        +ObterTodos() IReadOnlyList~string~
+        +Existe(string?) bool
+    }
+    class MarketplaceService
+
+    class PacoteFormViewModel {
+        +Pacote Pacote
+        +IEnumerable~SelectListItem~ Marketplaces
+    }
+    class PacoteSearchViewModel {
+        +string? Texto
+        +StatusPacote? Status
+        +string? Marketplace
+        +DateTime? RecebidoDe
+        +DateTime? RecebidoAte
+        +IReadOnlyList~Pacote~ Resultados
+        +ParaFiltro() FiltroPacote
+    }
+    class HomeDashboardViewModel {
+        +int TotalPacotes
+        +int PacotesNoPonto
+        +int PacotesFrageis
+        +int PacotesParados
+        +decimal ValorSobGuarda
+    }
+
+    class PacotesController {
+        +Index(ordenarPor, decrescente)
+        +Details(id)
+        +Create() / Create(PacoteFormViewModel)
+        +Edit(id) / Edit(id, PacoteFormViewModel)
+        +Delete(id)
+        +DeleteConfirmed(id)
+        +Search(PacoteSearchViewModel)
+    }
+    class HomeController {
+        +Index()
+        +Sobre()
+        +ErroHttp(codigo)
+        +Error()
+    }
+    class PacotesApiController {
+        +ObterTodos()
+        +ObterPorId(id)
+        +Pesquisar(FiltroPacote)
+        +Criar(Pacote)
+        +Atualizar(id, Pacote)
+        +Remover(id)
+    }
+
+    class TagHelper {
+        <<abstract>>
+    }
+    class StatusBadgeTagHelper
+    class MoedaTagHelper
+    class PrazoAlertaTagHelper
+    class BotaoAcaoTagHelper
+    class EmptyStateTagHelper
+
+    IValidatableObject <|.. Pacote
+    Pacote --> StatusPacote
+    Pacote --> TipoOperacao
+    Pacote ..> DataNaoFuturaAttribute : usa
+    IPacoteRepository <|.. InMemoryPacoteRepository
+    InMemoryPacoteRepository o-- Pacote
+    InMemoryPacoteRepository ..> PacoteSeed : carga inicial
+    IMarketplaceService <|.. MarketplaceService
+    PacoteFormViewModel --> Pacote
+    PacoteSearchViewModel ..> FiltroPacote
+    PacotesController --> IPacoteRepository
+    PacotesController --> IMarketplaceService
+    PacotesController ..> PacoteFormViewModel
+    PacotesController ..> PacoteSearchViewModel
+    HomeController --> IPacoteRepository
+    HomeController ..> HomeDashboardViewModel
+    PacotesApiController --> IPacoteRepository
+    PacotesApiController --> IMarketplaceService
+    TagHelper <|-- StatusBadgeTagHelper
+    TagHelper <|-- MoedaTagHelper
+    TagHelper <|-- PrazoAlertaTagHelper
+    TagHelper <|-- BotaoAcaoTagHelper
+    TagHelper <|-- EmptyStateTagHelper

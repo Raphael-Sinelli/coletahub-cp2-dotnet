@@ -1,0 +1,26 @@
+flowchart TB
+    U([Operador no navegador]) -->|GET / POST + antiforgery| MW
+    PM([Postman / Newman]) -->|JSON| MW
+
+    subgraph MW [Pipeline ASP.NET Core]
+        direction LR
+        L[RequestLocalization pt-BR] --> SC[StatusCodePages /erro/código] --> R[Roteamento]
+    end
+
+    R -->|/Pacotes/*| PC[PacotesController]
+    R -->|/ e /Home/Sobre| HC[HomeController]
+    R -->|/api/pacotes| API[PacotesApiController]
+
+    PC --> MS[IMarketplaceService]
+    PC --> REPO[(IPacoteRepository<br/>InMemoryPacoteRepository<br/>Singleton)]
+    HC --> REPO
+    API --> REPO
+    API --> MS
+
+    PC -->|PacoteFormViewModel<br/>PacoteSearchViewModel| V[Views Razor<br/>_Layout + partials]
+    HC -->|HomeDashboardViewModel| V
+    V --> TH[Tag Helpers<br/>status-badge · moeda · prazo-alerta<br/>botao-acao · empty-state]
+    TH --> HTML([HTML + Bootstrap 5])
+    API --> JSON([JSON 200/201/204/400/404])
+
+    PC -. "POST válido: TempData + RedirectToAction (PRG)" .-> U
