@@ -1,0 +1,12 @@
+ColetaHub - Checkpoint 2 de ASP.NET Core MVC
+FIAP - Análise e Desenvolvimento de Sistemas
+Prof. Dr. Marcel Stefan Wagner
+
+Repositório: {{URL_REPOSITORIO}}
+
+Integrantes:
+- Raphael Oliveira Sinelli Mendonça - RM 568346
+- Henrique Spoltore Moreno Pavão dos Santos - RM 568130
+
+Como executar: abrir ColetaHub.sln no Visual Studio 2022 ou 2026 e pressionar F5.
+Instruções completas, diagramas, endpoints, testes e prints no README.md.
