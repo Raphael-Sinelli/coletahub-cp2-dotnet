@@ -1,0 +1,406 @@
+{
+  "info": {
+    "_postman_id": "6f1d7c5e-2b8a-4c1e-9a77-c0e7a5b0c2d1",
+    "name": "ColetaHub API",
+    "description": "Testes da API REST do ColetaHub (Checkpoint 2 de ASP.NET Core MVC, FIAP).\n\nAntes de rodar, inicie a aplicação (F5 no Visual Studio ou `dotnet run --project src/ColetaHub.Web --launch-profile http`).\nA variável `baseUrl` aponta para http://localhost:5279 (perfil http do launchSettings.json).\n\nRode a coleção inteira, em ordem, pelo Collection Runner: as requisições são encadeadas (o POST guarda o Id criado em `pacoteId`, usado pelas seguintes). Um código de rastreio aleatório é gerado a cada execução, então a coleção pode ser rodada várias vezes sem reiniciar a aplicação.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Data de hoje no formato yyyy-MM-dd (horário local), usada nos corpos das requisições.",
+          "const agora = new Date();",
+          "const doisDigitos = n => String(n).padStart(2, '0');",
+          "pm.collectionVariables.set('hoje', `${agora.getFullYear()}-${doisDigitos(agora.getMonth() + 1)}-${doisDigitos(agora.getDate())}`);"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5279", "type": "string" },
+    { "key": "pacoteId", "value": "", "type": "string" },
+    { "key": "codigoRastreio", "value": "", "type": "string" },
+    { "key": "hoje", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "01 - Listar todos os pacotes",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+              "",
+              "const pacotes = pm.response.json();",
+              "pm.test('Retorna uma lista com o seed (12 ou mais pacotes)', () => {",
+              "    pm.expect(pacotes).to.be.an('array');",
+              "    pm.expect(pacotes.length).to.be.at.least(12);",
+              "});",
+              "pm.test('Cada pacote traz os campos principais', () => {",
+              "    pm.expect(pacotes[0]).to.include.all.keys('id', 'codigoRastreio', 'nomeDestinatario', 'marketplace', 'status', 'dataRecebimento', 'diasNoPonto');",
+              "});",
+              "pm.test('Enums são serializados como texto', () => {",
+              "    pm.expect(pacotes[0].status).to.be.a('string');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": { "raw": "{{baseUrl}}/api/pacotes", "host": ["{{baseUrl}}"], "path": ["api", "pacotes"] },
+        "description": "GET /api/pacotes → 200 com todos os pacotes, do recebimento mais recente para o mais antigo."
+      }
+    },
+    {
+      "name": "02 - Pesquisar por status",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+              "",
+              "const pacotes = pm.response.json();",
+              "pm.test('Encontra pacotes aguardando retirada', () => pm.expect(pacotes.length).to.be.above(0));",
+              "pm.test('Todos os resultados têm o status filtrado', () => {",
+              "    pacotes.forEach(p => pm.expect(p.status).to.eql('AguardandoRetirada'));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": {
+          "raw": "{{baseUrl}}/api/pacotes/pesquisa?status=AguardandoRetirada",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "pacotes", "pesquisa"],
+          "query": [{ "key": "status", "value": "AguardandoRetirada" }]
+        },
+        "description": "GET /api/pacotes/pesquisa?status=... → 200 somente com pacotes do status informado."
+      }
+    },
+    {
+      "name": "03 - Pesquisar por texto (sem diferenciar maiúsculas)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+              "",
+              "const pacotes = pm.response.json();",
+              "pm.test('Encontra pacotes pelo trecho do nome', () => pm.expect(pacotes.length).to.be.above(0));",
+              "pm.test('Cada resultado contém \"martins\" no código ou no nome', () => {",
+              "    pacotes.forEach(p => {",
+              "        const alvo = (p.codigoRastreio + ' ' + p.nomeDestinatario).toLowerCase();",
+              "        pm.expect(alvo).to.include('martins');",
+              "    });",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": {
+          "raw": "{{baseUrl}}/api/pacotes/pesquisa?texto=MARTINS",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "pacotes", "pesquisa"],
+          "query": [{ "key": "texto", "value": "MARTINS" }]
+        },
+        "description": "GET /api/pacotes/pesquisa?texto=... → busca por trecho do código de rastreio ou do nome do destinatário. Também aceita marketplace, recebidoDe e recebidoAte (yyyy-MM-dd)."
+      }
+    },
+    {
+      "name": "04 - Criar pacote",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Código único a cada execução: PM + 9 dígitos + BR.",
+              "const digitos = String(Math.floor(Math.random() * 1e9)).padStart(9, '0');",
+              "pm.collectionVariables.set('codigoRastreio', `PM${digitos}BR`);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
+              "pm.test('Header Location aponta para o novo recurso', () => {",
+              "    pm.response.to.have.header('Location');",
+              "    pm.expect(pm.response.headers.get('Location')).to.match(/\\/api\\/pacotes\\/\\d+$/);",
+              "});",
+              "",
+              "const pacote = pm.response.json();",
+              "pm.test('Retorna o pacote com Id gerado pelo servidor', () => {",
+              "    pm.expect(pacote.id).to.be.a('number').and.above(0);",
+              "    pm.expect(pacote.codigoRastreio).to.eql(pm.collectionVariables.get('codigoRastreio'));",
+              "    pm.expect(pacote.status).to.eql('Recebido');",
+              "    pm.expect(pacote.fragil).to.eql(true);",
+              "    pm.expect(pacote.diasNoPonto).to.eql(0);",
+              "});",
+              "",
+              "pm.collectionVariables.set('pacoteId', pacote.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"codigoRastreio\": \"{{codigoRastreio}}\",\n  \"nomeDestinatario\": \"Patrícia Moura Andrade\",\n  \"cpfDestinatario\": \"391.552.708-60\",\n  \"marketplace\": \"Magalu\",\n  \"pesoKg\": 4.6,\n  \"valorDeclarado\": 879.9,\n  \"dataRecebimento\": \"{{hoje}}\",\n  \"dataRetirada\": null,\n  \"status\": \"Recebido\",\n  \"tipoOperacao\": \"RetiradaCliente\",\n  \"fragil\": true,\n  \"observacoes\": \"Liquidificador. Cliente de Santo Amaro retira no sábado.\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{baseUrl}}/api/pacotes", "host": ["{{baseUrl}}"], "path": ["api", "pacotes"] },
+        "description": "POST /api/pacotes → 201 Created (CreatedAtAction) com o pacote e o header Location. O Id do corpo é ignorado."
+      }
+    },
+    {
+      "name": "05 - Criar pacote inválido",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 400 Bad Request', () => pm.response.to.have.status(400));",
+              "",
+              "const problema = pm.response.json();",
+              "const campos = Object.keys(problema.errors || {}).map(c => c.toLowerCase());",
+              "pm.test('Resposta no formato ValidationProblemDetails', () => {",
+              "    pm.expect(problema.status).to.eql(400);",
+              "    pm.expect(problema).to.have.property('errors');",
+              "});",
+              "pm.test('Aponta erros de código, CPF e peso', () => {",
+              "    pm.expect(campos).to.include.members(['codigorastreio', 'cpfdestinatario', 'pesokg']);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"codigoRastreio\": \"ABC123\",\n  \"nomeDestinatario\": \"Jo\",\n  \"cpfDestinatario\": \"39155270860\",\n  \"marketplace\": \"Shopee\",\n  \"pesoKg\": 45,\n  \"valorDeclarado\": 50,\n  \"dataRecebimento\": \"{{hoje}}\",\n  \"status\": \"Recebido\",\n  \"tipoOperacao\": \"RetiradaCliente\",\n  \"fragil\": false\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{baseUrl}}/api/pacotes", "host": ["{{baseUrl}}"], "path": ["api", "pacotes"] },
+        "description": "POST com dados fora das regras (Data Annotations) → 400 com a lista de erros por campo."
+      }
+    },
+    {
+      "name": "06 - Criar pacote com código duplicado",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 400 Bad Request', () => pm.response.to.have.status(400));",
+              "pm.test('Erro informa código de rastreio duplicado', () => {",
+              "    const erros = pm.response.json().errors;",
+              "    pm.expect(erros).to.have.property('CodigoRastreio');",
+              "    pm.expect(erros.CodigoRastreio[0]).to.include('Já existe');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"codigoRastreio\": \"{{codigoRastreio}}\",\n  \"nomeDestinatario\": \"Outra Pessoa da Silva\",\n  \"cpfDestinatario\": \"123.456.789-09\",\n  \"marketplace\": \"Shein\",\n  \"pesoKg\": 0.5,\n  \"valorDeclarado\": 99.9,\n  \"dataRecebimento\": \"{{hoje}}\",\n  \"status\": \"Recebido\",\n  \"tipoOperacao\": \"RetiradaCliente\",\n  \"fragil\": false\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{baseUrl}}/api/pacotes", "host": ["{{baseUrl}}"], "path": ["api", "pacotes"] },
+        "description": "POST reutilizando o código criado na requisição 04 → 400 (código de rastreio é único)."
+      }
+    },
+    {
+      "name": "07 - Obter pacote por Id",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+              "",
+              "const pacote = pm.response.json();",
+              "pm.test('Retorna o pacote criado', () => {",
+              "    pm.expect(pacote.id).to.eql(Number(pm.collectionVariables.get('pacoteId')));",
+              "    pm.expect(pacote.nomeDestinatario).to.eql('Patrícia Moura Andrade');",
+              "    pm.expect(pacote.marketplace).to.eql('Magalu');",
+              "    pm.expect(pacote.cpfMascarado).to.eql('***.552.708-**');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": { "raw": "{{baseUrl}}/api/pacotes/{{pacoteId}}", "host": ["{{baseUrl}}"], "path": ["api", "pacotes", "{{pacoteId}}"] },
+        "description": "GET /api/pacotes/{id} → 200 com o pacote."
+      }
+    },
+    {
+      "name": "08 - Atualizar pacote (retirada pelo cliente)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 204 No Content', () => pm.response.to.have.status(204));",
+              "pm.test('Resposta sem corpo', () => pm.expect(pm.response.text()).to.be.empty);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": {{pacoteId}},\n  \"codigoRastreio\": \"{{codigoRastreio}}\",\n  \"nomeDestinatario\": \"Patrícia Moura Andrade\",\n  \"cpfDestinatario\": \"391.552.708-60\",\n  \"marketplace\": \"Magalu\",\n  \"pesoKg\": 4.6,\n  \"valorDeclarado\": 879.9,\n  \"dataRecebimento\": \"{{hoje}}\",\n  \"dataRetirada\": \"{{hoje}}\",\n  \"status\": \"Retirado\",\n  \"tipoOperacao\": \"RetiradaCliente\",\n  \"fragil\": true,\n  \"observacoes\": \"Retirado pela própria cliente com documento.\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{baseUrl}}/api/pacotes/{{pacoteId}}", "host": ["{{baseUrl}}"], "path": ["api", "pacotes", "{{pacoteId}}"] },
+        "description": "PUT /api/pacotes/{id} → 204. Regra do IValidatableObject: status Retirado exige dataRetirada."
+      }
+    },
+    {
+      "name": "09 - Conferir atualização",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+              "",
+              "const pacote = pm.response.json();",
+              "pm.test('Status e data de saída foram gravados', () => {",
+              "    pm.expect(pacote.status).to.eql('Retirado');",
+              "    pm.expect(pacote.dataRetirada).to.include(pm.collectionVariables.get('hoje'));",
+              "    pm.expect(pacote.estaNoPonto).to.eql(false);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": { "raw": "{{baseUrl}}/api/pacotes/{{pacoteId}}", "host": ["{{baseUrl}}"], "path": ["api", "pacotes", "{{pacoteId}}"] }
+      }
+    },
+    {
+      "name": "10 - Atualizar pacote inexistente",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 404 Not Found', () => pm.response.to.have.status(404));",
+              "pm.test('Resposta em JSON (ProblemDetails)', () => pm.expect(pm.response.json().status).to.eql(404));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"codigoRastreio\": \"ZZ000000000BR\",\n  \"nomeDestinatario\": \"Ninguém Cadastrado\",\n  \"cpfDestinatario\": \"000.000.000-00\",\n  \"marketplace\": \"Amazon\",\n  \"pesoKg\": 1,\n  \"valorDeclarado\": 10,\n  \"dataRecebimento\": \"{{hoje}}\",\n  \"status\": \"Recebido\",\n  \"tipoOperacao\": \"RetiradaCliente\",\n  \"fragil\": false\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{baseUrl}}/api/pacotes/999999", "host": ["{{baseUrl}}"], "path": ["api", "pacotes", "999999"] }
+      }
+    },
+    {
+      "name": "11 - Excluir pacote",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 204 No Content', () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/pacotes/{{pacoteId}}", "host": ["{{baseUrl}}"], "path": ["api", "pacotes", "{{pacoteId}}"] },
+        "description": "DELETE /api/pacotes/{id} → 204."
+      }
+    },
+    {
+      "name": "12 - Obter pacote excluído",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 404 Not Found', () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": { "raw": "{{baseUrl}}/api/pacotes/{{pacoteId}}", "host": ["{{baseUrl}}"], "path": ["api", "pacotes", "{{pacoteId}}"] }
+      }
+    },
+    {
+      "name": "13 - Excluir pacote inexistente",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 404 Not Found', () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/pacotes/{{pacoteId}}", "host": ["{{baseUrl}}"], "path": ["api", "pacotes", "{{pacoteId}}"] }
+      }
+    }
+  ]
+}
