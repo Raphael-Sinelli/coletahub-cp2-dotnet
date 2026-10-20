@@ -7,8 +7,7 @@ namespace ColetaHub.Web.Validation;
 /// Atributo de validação customizado: impede datas posteriores ao dia de hoje.
 /// Um pacote não pode ter sido recebido (ou retirado) amanhã.
 /// No servidor valida em <see cref="IsValid(object?, ValidationContext)"/>; no navegador emite
-/// <c>data-val-datanaofutura</c> (lido por wwwroot/js/validacao-ptbr.js) e o atributo HTML <c>max</c>,
-/// que bloqueia dias futuros no seletor de data.
+/// <c>data-val-datanaofutura</c>, lido pelo adaptador em wwwroot/js/validacao-ptbr.js.
 /// </summary>
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter)]
 public sealed class DataNaoFuturaAttribute : ValidationAttribute, IClientModelValidator
@@ -33,6 +32,5 @@ public sealed class DataNaoFuturaAttribute : ValidationAttribute, IClientModelVa
     {
         context.Attributes.TryAdd("data-val", "true");
         context.Attributes.TryAdd("data-val-datanaofutura", FormatErrorMessage(context.ModelMetadata.GetDisplayName()));
-        context.Attributes.TryAdd("max", DateTime.Today.ToString("yyyy-MM-dd"));
     }
 }
