@@ -1,0 +1,111 @@
+@model PacoteFormViewModel
+@* Campos do pacote, compartilhados por Create e Edit. O <form> e os botões ficam em cada view. *@
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger resumo-validacao" role="alert"></div>
+<input type="hidden" asp-for="Pacote.Id" />
+
+<section class="form-secao">
+    <h2 class="form-secao__titulo"><span class="form-secao__numero">1</span> Identificação</h2>
+    <div class="row g-3">
+        <div class="col-md-5">
+            <label asp-for="Pacote.CodigoRastreio" class="form-label"></label>
+            <input asp-for="Pacote.CodigoRastreio" class="form-control font-mono" placeholder="QB123456789BR"
+                   maxlength="13" autocomplete="off" spellcheck="false" data-maiusculas aria-describedby="ajudaCodigo" />
+            <div id="ajudaCodigo" class="form-text">2 letras, 9 dígitos e BR, como na etiqueta.</div>
+            <span asp-validation-for="Pacote.CodigoRastreio" class="mensagem-validacao"></span>
+        </div>
+        <div class="col-md-4">
+            @* Dropdown alimentado pelo Controller: Model.Marketplaces vem do IMarketplaceService. *@
+            <label asp-for="Pacote.Marketplace" class="form-label"></label>
+            <select asp-for="Pacote.Marketplace" asp-items="Model.Marketplaces" class="form-select">
+                <option value="">Selecione…</option>
+            </select>
+            <span asp-validation-for="Pacote.Marketplace" class="mensagem-validacao"></span>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="Pacote.TipoOperacao" class="form-label"></label>
+            <select asp-for="Pacote.TipoOperacao" asp-items="Html.GetEnumSelectList<TipoOperacao>()" class="form-select"></select>
+            <span asp-validation-for="Pacote.TipoOperacao" class="mensagem-validacao"></span>
+        </div>
+    </div>
+</section>
+
+<section class="form-secao">
+    <h2 class="form-secao__titulo"><span class="form-secao__numero">2</span> Destinatário</h2>
+    <div class="row g-3">
+        <div class="col-md-8">
+            <label asp-for="Pacote.NomeDestinatario" class="form-label"></label>
+            <input asp-for="Pacote.NomeDestinatario" class="form-control" placeholder="Nome completo, como na etiqueta" autocomplete="off" />
+            <span asp-validation-for="Pacote.NomeDestinatario" class="mensagem-validacao"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Pacote.CpfDestinatario" class="form-label"></label>
+            <input asp-for="Pacote.CpfDestinatario" class="form-control font-mono" placeholder="000.000.000-00"
+                   maxlength="14" inputmode="numeric" autocomplete="off" data-mascara-cpf />
+            <span asp-validation-for="Pacote.CpfDestinatario" class="mensagem-validacao"></span>
+        </div>
+    </div>
+</section>
+
+<section class="form-secao">
+    <h2 class="form-secao__titulo"><span class="form-secao__numero">3</span> Volume</h2>
+    <div class="row g-3 align-items-start">
+        <div class="col-sm-6 col-md-4">
+            <label asp-for="Pacote.PesoKg" class="form-label"></label>
+            <div class="input-group">
+                <input asp-for="Pacote.PesoKg" class="form-control" inputmode="decimal" placeholder="0,00" data-limpar-zero />
+                <span class="input-group-text">kg</span>
+            </div>
+            <span asp-validation-for="Pacote.PesoKg" class="mensagem-validacao"></span>
+        </div>
+        <div class="col-sm-6 col-md-4">
+            <label asp-for="Pacote.ValorDeclarado" class="form-label"></label>
+            <div class="input-group">
+                <span class="input-group-text">R$</span>
+                <input asp-for="Pacote.ValorDeclarado" class="form-control" inputmode="decimal" placeholder="0,00" data-limpar-zero />
+            </div>
+            <span asp-validation-for="Pacote.ValorDeclarado" class="mensagem-validacao"></span>
+        </div>
+        <div class="col-md-4">
+            <span class="form-label d-block">Manuseio</span>
+            <div class="form-check form-switch interruptor">
+                <input asp-for="Pacote.Fragil" class="form-check-input" role="switch" />
+                <label asp-for="Pacote.Fragil" class="form-check-label">Pacote frágil</label>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="form-secao">
+    <h2 class="form-secao__titulo"><span class="form-secao__numero">4</span> Status e datas</h2>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label asp-for="Pacote.Status" class="form-label"></label>
+            <select asp-for="Pacote.Status" asp-items="Html.GetEnumSelectList<StatusPacote>()" class="form-select"
+                    data-status-com-saida="@((int)StatusPacote.Retirado),@((int)StatusPacote.Coletado)"></select>
+            <span asp-validation-for="Pacote.Status" class="mensagem-validacao"></span>
+        </div>
+        <div class="col-sm-6 col-md-4">
+            <label asp-for="Pacote.DataRecebimento" class="form-label"></label>
+            <input asp-for="Pacote.DataRecebimento" class="form-control" />
+            <span asp-validation-for="Pacote.DataRecebimento" class="mensagem-validacao"></span>
+        </div>
+        <div class="col-sm-6 col-md-4">
+            <label asp-for="Pacote.DataRetirada" class="form-label"></label>
+            <input asp-for="Pacote.DataRetirada" class="form-control" data-data-saida aria-describedby="ajudaSaida" />
+            <div id="ajudaSaida" class="form-text">Somente para status Retirado ou Coletado.</div>
+            <span asp-validation-for="Pacote.DataRetirada" class="mensagem-validacao"></span>
+        </div>
+    </div>
+</section>
+
+<section class="form-secao">
+    <h2 class="form-secao__titulo"><span class="form-secao__numero">5</span> Observações</h2>
+    <label asp-for="Pacote.Observacoes" class="visually-hidden"></label>
+    <textarea asp-for="Pacote.Observacoes" class="form-control" rows="3" maxlength="300" data-contador="contadorObservacoes"
+              placeholder="Ex.: caixa avariada, retirada autorizada para terceiro, cliente avisado por WhatsApp…"></textarea>
+    <div class="d-flex justify-content-between">
+        <span asp-validation-for="Pacote.Observacoes" class="mensagem-validacao"></span>
+        <span id="contadorObservacoes" class="form-text ms-auto" aria-live="polite"></span>
+    </div>
+</section>

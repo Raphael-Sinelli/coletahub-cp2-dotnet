@@ -1,0 +1,91 @@
+@model Pacote
+@{
+    ViewData["Title"] = $"Pacote {Model.CodigoRastreio}";
+}
+
+<nav aria-label="Trilha de navegação">
+    <ol class="breadcrumb trilha">
+        <li class="breadcrumb-item"><a asp-action="Index">Pacotes</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@Model.CodigoRastreio</li>
+    </ol>
+</nav>
+
+<div class="cabecalho-pagina">
+    <div>
+        <p class="sobretitulo">Detalhes do pacote</p>
+        <h1 class="titulo-pagina font-mono">@Model.CodigoRastreio</h1>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <status-badge status="@Model.Status" />
+            <prazo-alerta dias="@Model.DiasNoPonto" encerrado="@(!Model.EstaNoPonto)" />
+            @if (Model.Fragil)
+            {
+                <span class="tag-fragil"><i class="bi bi-exclamation-diamond-fill" aria-hidden="true"></i> Frágil</span>
+            }
+        </div>
+    </div>
+    <div class="cabecalho-pagina__acoes">
+        <botao-acao tipo="editar" id="@Model.Id" descricao="@Model.CodigoRastreio" />
+        <botao-acao tipo="excluir" id="@Model.Id" descricao="@Model.CodigoRastreio" />
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <section class="card-painel h-100">
+            <h2 class="card-painel__titulo"><i class="bi bi-person-vcard" aria-hidden="true"></i> Destinatário</h2>
+            <dl class="lista-dados">
+                <dt>@Html.DisplayNameFor(m => m.NomeDestinatario)</dt>
+                <dd>@Model.NomeDestinatario</dd>
+                <dt>@Html.DisplayNameFor(m => m.CpfDestinatario)</dt>
+                <dd class="font-mono">@Model.CpfDestinatario</dd>
+                <dt>@Html.DisplayNameFor(m => m.TipoOperacao)</dt>
+                <dd>@Model.TipoOperacao.ObterNomeExibicao()</dd>
+            </dl>
+        </section>
+    </div>
+    <div class="col-lg-6">
+        <section class="card-painel h-100">
+            <h2 class="card-painel__titulo"><i class="bi bi-box-seam" aria-hidden="true"></i> Volume</h2>
+            <dl class="lista-dados">
+                <dt>@Html.DisplayNameFor(m => m.Marketplace)</dt>
+                <dd><span class="marketplace" data-marketplace="@Model.Marketplace">@Model.Marketplace</span></dd>
+                <dt>@Html.DisplayNameFor(m => m.PesoKg)</dt>
+                <dd>@Model.PesoKg.ToString("N2") kg</dd>
+                <dt>@Html.DisplayNameFor(m => m.ValorDeclarado)</dt>
+                <dd><moeda valor="@Model.ValorDeclarado" /></dd>
+                <dt>@Html.DisplayNameFor(m => m.Fragil)</dt>
+                <dd>@(Model.Fragil ? "Sim, manusear com cuidado" : "Não")</dd>
+            </dl>
+        </section>
+    </div>
+    <div class="col-lg-6">
+        <section class="card-painel h-100">
+            <h2 class="card-painel__titulo"><i class="bi bi-calendar-week" aria-hidden="true"></i> Movimentação</h2>
+            <dl class="lista-dados">
+                <dt>@Html.DisplayNameFor(m => m.DataRecebimento)</dt>
+                <dd>@Model.DataRecebimento.ToString("D")</dd>
+                <dt>@Html.DisplayNameFor(m => m.DataRetirada)</dt>
+                <dd>@(Model.DataRetirada?.ToString("D") ?? "Ainda não saiu do ponto")</dd>
+                <dt>@Html.DisplayNameFor(m => m.DiasNoPonto)</dt>
+                <dd>@Model.DiasNoPonto @(Model.DiasNoPonto == 1 ? "dia" : "dias")</dd>
+            </dl>
+        </section>
+    </div>
+    <div class="col-lg-6">
+        <section class="card-painel h-100">
+            <h2 class="card-painel__titulo"><i class="bi bi-chat-left-text" aria-hidden="true"></i> @Html.DisplayNameFor(m => m.Observacoes)</h2>
+            @if (string.IsNullOrWhiteSpace(Model.Observacoes))
+            {
+                <p class="text-suave mb-0">Nenhuma observação registrada.</p>
+            }
+            else
+            {
+                <p class="mb-0 texto-observacao">@Model.Observacoes</p>
+            }
+        </section>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a class="btn btn-link px-0" asp-action="Index"><i class="bi bi-arrow-left" aria-hidden="true"></i> Voltar para a lista</a>
+</div>

@@ -1,0 +1,29 @@
+@using ColetaHub.Web.Controllers
+@{
+    // Mensagens gravadas em TempData pelos POSTs (padrão PRG). São lidas uma única vez.
+    var sucesso = TempData[PacotesController.ChaveSucesso] as string;
+    var erro = TempData[PacotesController.ChaveErro] as string;
+}
+@if (sucesso is not null || erro is not null)
+{
+    <div class="alertas" aria-live="polite">
+        @if (sucesso is not null)
+        {
+            <div class="alert alert-success alert-dismissible fade show alerta alerta--auto" role="alert">
+                <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+                <span>@sucesso</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+                <span class="alerta__tempo" aria-hidden="true"></span>
+            </div>
+        }
+        @if (erro is not null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show alerta alerta--auto" role="alert">
+                <i class="bi bi-x-octagon-fill" aria-hidden="true"></i>
+                <span>@erro</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+                <span class="alerta__tempo" aria-hidden="true"></span>
+            </div>
+        }
+    </div>
+}

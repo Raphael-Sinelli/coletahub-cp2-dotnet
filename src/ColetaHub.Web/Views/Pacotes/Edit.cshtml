@@ -1,0 +1,32 @@
+@model PacoteFormViewModel
+@{
+    ViewData["Title"] = $"Editar {Model.Pacote.CodigoRastreio}";
+}
+
+<nav aria-label="Trilha de navegação">
+    <ol class="breadcrumb trilha">
+        <li class="breadcrumb-item"><a asp-action="Index">Pacotes</a></li>
+        <li class="breadcrumb-item"><a asp-action="Details" asp-route-id="@Model.Pacote.Id">@Model.Pacote.CodigoRastreio</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Editar</li>
+    </ol>
+</nav>
+
+<div class="cabecalho-pagina">
+    <div>
+        <p class="sobretitulo">Atualização</p>
+        <h1 class="titulo-pagina">Editar pacote</h1>
+        <p class="text-suave mb-0">Atualize o status quando o pacote for retirado, coletado ou devolvido.</p>
+    </div>
+</div>
+
+<form asp-action="Edit" asp-route-id="@Model.Pacote.Id" method="post" class="card-painel formulario-pacote">
+    <partial name="_Form" model="Model" />
+    <div class="formulario-pacote__acoes">
+        <a class="btn btn-light" asp-action="Details" asp-route-id="@Model.Pacote.Id">Cancelar</a>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-save" aria-hidden="true"></i> Salvar alterações</button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

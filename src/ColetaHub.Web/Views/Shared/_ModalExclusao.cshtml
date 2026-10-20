@@ -1,0 +1,29 @@
+@*
+    Segunda camada de confirmação: o botão <botao-acao tipo="excluir" modal="true"> abre este modal.
+    O site.js copia a URL do botão para o action do formulário. A exclusão só ocorre no POST,
+    que leva o token antiforgery gerado pelo Form Tag Helper.
+*@
+<div class="modal fade" id="modalExclusao" tabindex="-1" aria-labelledby="modalExclusaoTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-exclusao">
+            <form method="post" asp-controller="Pacotes" asp-action="Delete" id="formExclusao">
+                <div class="modal-header">
+                    <h2 class="modal-title h5" id="modalExclusaoTitulo">
+                        <i class="bi bi-exclamation-octagon-fill text-danger" aria-hidden="true"></i> Remover pacote?
+                    </h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-2">Você está prestes a remover o pacote <strong class="font-mono" data-modal-descricao></strong>.</p>
+                    <p class="text-suave mb-0">O registro sai da lista do ponto e esta ação não pode ser desfeita.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash3" aria-hidden="true"></i> Confirmar exclusão
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

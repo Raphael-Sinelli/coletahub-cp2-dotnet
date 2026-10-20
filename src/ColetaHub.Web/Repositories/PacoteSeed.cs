@@ -11,7 +11,8 @@ public static class PacoteSeed
 {
     public static IReadOnlyList<Pacote> Criar()
     {
-        var hoje = DateTime.Today;
+        // Unspecified: mesma forma das datas vindas dos formulários e da API ("2026-10-20T00:00:00", sem fuso).
+        var hoje = DateTime.SpecifyKind(DateTime.Today, DateTimeKind.Unspecified);
 
         return
         [

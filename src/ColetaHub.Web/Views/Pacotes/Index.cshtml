@@ -1,0 +1,70 @@
+@model IReadOnlyList<Pacote>
+@{
+    ViewData["Title"] = "Pacotes";
+    var ordenarPor = (string)ViewData["OrdenarPor"]!;
+    var decrescente = (bool)ViewData["Decrescente"]!;
+
+    // Clicar na coluna já ordenada inverte a direção; numa coluna nova, data começa decrescente e as demais crescentes.
+    bool ProximaDirecao(string coluna) => coluna == ordenarPor ? !decrescente : coluna == "data";
+    string IconeOrdenacao(string coluna) => coluna != ordenarPor ? "bi-arrow-down-up" : decrescente ? "bi-sort-down" : "bi-sort-up";
+    string? AriaSort(string coluna) => coluna != ordenarPor ? null : decrescente ? "descending" : "ascending";
+}
+
+<div class="cabecalho-pagina">
+    <div>
+        <p class="sobretitulo">Ponto Vila Mariana</p>
+        <h1 class="titulo-pagina">Pacotes</h1>
+        <p class="text-suave mb-0">@Model.Count pacotes registrados · clique no cabeçalho para ordenar por código, data ou status.</p>
+    </div>
+    <div class="cabecalho-pagina__acoes">
+        <a class="btn btn-outline-primary" asp-action="Search"><i class="bi bi-search" aria-hidden="true"></i> Pesquisar</a>
+        <a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus-lg" aria-hidden="true"></i> Novo pacote</a>
+    </div>
+</div>
+
+@if (Model.Count == 0)
+{
+    <empty-state titulo="Nenhum pacote no ponto" mensagem="Quando um pacote chegar ao balcão, registre-o para acompanhar o status até a saída." icone="box-seam">
+        <a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus-lg" aria-hidden="true"></i> Registrar primeiro pacote</a>
+    </empty-state>
+}
+else
+{
+    <div class="card-painel p-0">
+        <div class="table-responsive">
+            <table class="table tabela-pacotes align-middle mb-0">
+                <caption class="visually-hidden">Pacotes registrados no ponto de coleta</caption>
+                <thead>
+                    <tr>
+                        <th scope="col" aria-sort="@AriaSort("codigo")">
+                            <a class="ordenacao" asp-action="Index" asp-route-ordenarPor="codigo" asp-route-decrescente="@ProximaDirecao("codigo")">
+                                Código <i class="bi @IconeOrdenacao("codigo")" aria-hidden="true"></i>
+                            </a>
+                        </th>
+                        <th scope="col">Destinatário</th>
+                        <th scope="col">Marketplace</th>
+                        <th scope="col" aria-sort="@AriaSort("status")">
+                            <a class="ordenacao" asp-action="Index" asp-route-ordenarPor="status" asp-route-decrescente="@ProximaDirecao("status")">
+                                Status <i class="bi @IconeOrdenacao("status")" aria-hidden="true"></i>
+                            </a>
+                        </th>
+                        <th scope="col" aria-sort="@AriaSort("data")">
+                            <a class="ordenacao" asp-action="Index" asp-route-ordenarPor="data" asp-route-decrescente="@ProximaDirecao("data")">
+                                Recebido em <i class="bi @IconeOrdenacao("data")" aria-hidden="true"></i>
+                            </a>
+                        </th>
+                        <th scope="col">No ponto</th>
+                        <th scope="col" class="text-lg-end">Valor</th>
+                        <th scope="col" class="text-end"><span class="visually-hidden">Ações</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var pacote in Model)
+                    {
+                        <partial name="_LinhaPacote" model="pacote" />
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

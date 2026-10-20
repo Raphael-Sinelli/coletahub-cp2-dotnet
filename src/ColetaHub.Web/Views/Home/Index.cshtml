@@ -1,8 +1,137 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@model HomeDashboardViewModel
+@{
+    ViewData["Title"] = "Painel";
+    var maiorStatus = Math.Max(1, Model.PorStatus.Max(s => s.Quantidade));
+    var maiorMarketplace = Math.Max(1, Model.PorMarketplace.Select(m => m.Quantidade).DefaultIfEmpty(0).Max());
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<section class="hero">
+    <div>
+        <p class="hero__local"><i class="bi bi-geo-alt-fill" aria-hidden="true"></i> Ponto Vila Mariana · São Paulo/SP</p>
+        <h1 class="hero__titulo">Painel do ponto de coleta</h1>
+        <p class="hero__data">@DateTime.Today.ToString("D")</p>
+    </div>
+    <div class="hero__acoes">
+        <a class="btn btn-destaque" asp-controller="Pacotes" asp-action="Create"><i class="bi bi-plus-lg" aria-hidden="true"></i> Registrar pacote</a>
+        <a class="btn btn-outline-light" asp-controller="Pacotes" asp-action="Search"><i class="bi bi-search" aria-hidden="true"></i> Pesquisar</a>
+    </div>
+</section>
+
+<div class="row g-3 g-lg-4 indicadores">
+    <div class="col-6 col-xl-3">
+        <a class="indicador" asp-controller="Pacotes" asp-action="Index">
+            <span class="indicador__icone"><i class="bi bi-boxes" aria-hidden="true"></i></span>
+            <span class="indicador__valor">@Model.TotalPacotes</span>
+            <span class="indicador__rotulo">Pacotes registrados</span>
+        </a>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="indicador indicador--info">
+            <span class="indicador__icone"><i class="bi bi-shop-window" aria-hidden="true"></i></span>
+            <span class="indicador__valor">@Model.PacotesNoPonto</span>
+            <span class="indicador__rotulo">No ponto agora · <moeda valor="@Model.ValorSobGuarda" /></span>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="indicador indicador--atencao">
+            <span class="indicador__icone"><i class="bi bi-exclamation-diamond" aria-hidden="true"></i></span>
+            <span class="indicador__valor">@Model.PacotesFrageis</span>
+            <span class="indicador__rotulo">Frágeis no ponto</span>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="indicador indicador--alerta">
+            <span class="indicador__icone"><i class="bi bi-alarm" aria-hidden="true"></i></span>
+            <span class="indicador__valor">@Model.PacotesParados</span>
+            <span class="indicador__rotulo">Parados há mais de @Pacote.DiasLimiteNoPonto dias</span>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-1">
+    <div class="col-lg-7">
+        <section class="card-painel h-100">
+            <h2 class="card-painel__titulo"><i class="bi bi-diagram-3" aria-hidden="true"></i> Pacotes por status</h2>
+            <ul class="distribuicao">
+                @foreach (var item in Model.PorStatus)
+                {
+                    <li>
+                        <a class="distribuicao__item" asp-controller="Pacotes" asp-action="Search" asp-route-status="@item.Status">
+                            <status-badge status="@item.Status" />
+                            <span class="distribuicao__barra" aria-hidden="true"><span style="width:@(item.Quantidade * 100 / maiorStatus)%"></span></span>
+                            <span class="distribuicao__qtd">@item.Quantidade</span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </section>
+    </div>
+    <div class="col-lg-5">
+        <section class="card-painel h-100">
+            <h2 class="card-painel__titulo"><i class="bi bi-bag" aria-hidden="true"></i> Por marketplace</h2>
+            <ul class="distribuicao">
+                @foreach (var item in Model.PorMarketplace)
+                {
+                    <li>
+                        <a class="distribuicao__item" asp-controller="Pacotes" asp-action="Search" asp-route-marketplace="@item.Marketplace">
+                            <span class="marketplace" data-marketplace="@item.Marketplace">@item.Marketplace</span>
+                            <span class="distribuicao__barra distribuicao__barra--neutra" aria-hidden="true"><span style="width:@(item.Quantidade * 100 / maiorMarketplace)%"></span></span>
+                            <span class="distribuicao__qtd">@item.Quantidade</span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </section>
+    </div>
+</div>
+
+<div class="row g-4 mt-1">
+    <div class="col-lg-6">
+        <section class="card-painel h-100">
+            <h2 class="card-painel__titulo"><i class="bi bi-alarm" aria-hidden="true"></i> Precisam de atenção</h2>
+            @if (Model.Parados.Count == 0)
+            {
+                <empty-state titulo="Tudo em dia" icone="check2-circle" mensagem="Nenhum pacote está parado há mais de @Pacote.DiasLimiteNoPonto dias." />
+            }
+            else
+            {
+                <ul class="lista-pacotes">
+                    @foreach (var pacote in Model.Parados)
+                    {
+                        <li>
+                            <a class="lista-pacotes__item" asp-controller="Pacotes" asp-action="Details" asp-route-id="@pacote.Id">
+                                <span>
+                                    <span class="codigo">@pacote.CodigoRastreio</span>
+                                    <span class="d-block small text-suave">@pacote.NomeDestinatario · @pacote.Marketplace</span>
+                                </span>
+                                <prazo-alerta dias="@pacote.DiasNoPonto" />
+                            </a>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+    </div>
+    <div class="col-lg-6">
+        <section class="card-painel h-100">
+            <div class="d-flex justify-content-between align-items-baseline">
+                <h2 class="card-painel__titulo"><i class="bi bi-inbox" aria-hidden="true"></i> Recebidos recentemente</h2>
+                <a class="small" asp-controller="Pacotes" asp-action="Index">Ver todos</a>
+            </div>
+            <ul class="lista-pacotes">
+                @foreach (var pacote in Model.RecebidosRecentemente)
+                {
+                    <li>
+                        <a class="lista-pacotes__item" asp-controller="Pacotes" asp-action="Details" asp-route-id="@pacote.Id">
+                            <span>
+                                <span class="codigo">@pacote.CodigoRastreio</span>
+                                <span class="d-block small text-suave">@pacote.NomeDestinatario · @pacote.DataRecebimento.ToString("dd/MM")</span>
+                            </span>
+                            <status-badge status="@pacote.Status" />
+                        </a>
+                    </li>
+                }
+            </ul>
+        </section>
+    </div>
 </div>

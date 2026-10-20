@@ -1,0 +1,64 @@
+@{
+    ViewData["Title"] = "Sobre";
+}
+
+<div class="cabecalho-pagina">
+    <div>
+        <p class="sobretitulo">Sobre o projeto</p>
+        <h1 class="titulo-pagina">O que é o ColetaHub</h1>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <section class="card-painel h-100 texto-sobre">
+            <h2 class="card-painel__titulo"><i class="bi bi-lightbulb" aria-hidden="true"></i> O problema</h2>
+            <p>
+                Farmácias, papelarias e lojas de bairro viraram pontos de coleta de marketplaces como Mercado Livre,
+                Shopee e Amazon. No balcão chegam dezenas de pacotes por dia: alguns o cliente vem buscar, outros a
+                transportadora recolhe, e os que passam do prazo voltam ao remetente. Sem controle, o operador perde
+                tempo procurando caixas, esquece pacotes parados e não sabe o valor que está sob sua guarda.
+            </p>
+            <h2 class="card-painel__titulo mt-4"><i class="bi bi-check2-square" aria-hidden="true"></i> A solução</h2>
+            <ul class="lista-recursos">
+                <li><i class="bi bi-box-seam" aria-hidden="true"></i> Registro de cada pacote com código de rastreio, destinatário, marketplace, peso e valor.</li>
+                <li><i class="bi bi-diagram-3" aria-hidden="true"></i> Acompanhamento do status, do recebimento até a retirada, coleta ou devolução.</li>
+                <li><i class="bi bi-alarm" aria-hidden="true"></i> Alerta automático para pacotes parados há mais de @Pacote.DiasLimiteNoPonto dias.</li>
+                <li><i class="bi bi-search" aria-hidden="true"></i> Pesquisa por código ou nome, com filtros de status, marketplace e período.</li>
+                <li><i class="bi bi-shield-check" aria-hidden="true"></i> Validações no navegador e no servidor, CPF mascarado nas listagens e exclusão com dupla confirmação.</li>
+                <li><i class="bi bi-plug" aria-hidden="true"></i> API REST documentada no Swagger e testada com Postman.</li>
+            </ul>
+            <p class="text-suave small mb-0">
+                Os dados ficam em memória (sem banco de dados): ao reiniciar a aplicação, a lista volta aos pacotes de exemplo.
+            </p>
+        </section>
+    </div>
+    <div class="col-lg-5">
+        <section class="card-painel mb-4">
+            <h2 class="card-painel__titulo"><i class="bi bi-people" aria-hidden="true"></i> Grupo</h2>
+            <ul class="integrantes">
+                <li>
+                    <span class="integrantes__avatar" aria-hidden="true">RM</span>
+                    <span><strong>Raphael Oliveira Sinelli Mendonça</strong><span class="d-block text-suave">RM 568346</span></span>
+                </li>
+                <li>
+                    <span class="integrantes__avatar" aria-hidden="true">HS</span>
+                    <span><strong>Henrique Spoltore Moreno Pavão dos Santos</strong><span class="d-block text-suave">RM 568130</span></span>
+                </li>
+            </ul>
+        </section>
+        <section class="card-painel">
+            <h2 class="card-painel__titulo"><i class="bi bi-mortarboard" aria-hidden="true"></i> Disciplina</h2>
+            <dl class="lista-dados">
+                <dt>Avaliação</dt>
+                <dd>Checkpoint 2 · ASP.NET Core MVC</dd>
+                <dt>Curso</dt>
+                <dd>Análise e Desenvolvimento de Sistemas · FIAP</dd>
+                <dt>Professor</dt>
+                <dd>Prof. Dr. Marcel Stefan Wagner</dd>
+                <dt>Tecnologia</dt>
+                <dd>.NET 8 · ASP.NET Core MVC · Bootstrap 5 · xUnit</dd>
+            </dl>
+        </section>
+    </div>
+</div>

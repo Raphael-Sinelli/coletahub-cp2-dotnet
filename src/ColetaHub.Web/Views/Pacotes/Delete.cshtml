@@ -1,0 +1,50 @@
+@model Pacote
+@{
+    ViewData["Title"] = $"Remover {Model.CodigoRastreio}";
+}
+
+<nav aria-label="Trilha de navegação">
+    <ol class="breadcrumb trilha">
+        <li class="breadcrumb-item"><a asp-action="Index">Pacotes</a></li>
+        <li class="breadcrumb-item"><a asp-action="Details" asp-route-id="@Model.Id">@Model.CodigoRastreio</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Remover</li>
+    </ol>
+</nav>
+
+<section class="confirmacao card-painel">
+    <div class="confirmacao__icone"><i class="bi bi-trash3" aria-hidden="true"></i></div>
+    <div class="flex-grow-1">
+        <p class="sobretitulo text-danger">Confirmação necessária</p>
+        <h1 class="titulo-pagina">Remover este pacote?</h1>
+        <p class="text-suave">Confira os dados abaixo. Depois de confirmar, o registro não poderá ser recuperado.</p>
+
+        @if (Model.EstaNoPonto)
+        {
+            <div class="alert alert-warning d-flex gap-2 align-items-start" role="alert">
+                <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+                <span>Este pacote ainda está <strong>fisicamente no ponto</strong>. Remova o registro apenas se ele foi cadastrado por engano.</span>
+            </div>
+        }
+
+        <dl class="lista-dados lista-dados--resumo">
+            <dt>@Html.DisplayNameFor(m => m.CodigoRastreio)</dt>
+            <dd class="font-mono">@Model.CodigoRastreio</dd>
+            <dt>@Html.DisplayNameFor(m => m.NomeDestinatario)</dt>
+            <dd>@Model.NomeDestinatario</dd>
+            <dt>@Html.DisplayNameFor(m => m.Marketplace)</dt>
+            <dd>@Model.Marketplace</dd>
+            <dt>@Html.DisplayNameFor(m => m.Status)</dt>
+            <dd><status-badge status="@Model.Status" /></dd>
+            <dt>@Html.DisplayNameFor(m => m.DataRecebimento)</dt>
+            <dd>@Model.DataRecebimento.ToString("d")</dd>
+            <dt>@Html.DisplayNameFor(m => m.ValorDeclarado)</dt>
+            <dd><moeda valor="@Model.ValorDeclarado" /></dd>
+        </dl>
+
+        @* A exclusão só acontece neste POST, protegido pelo token antiforgery que o Form Tag Helper inclui. *@
+        <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="d-flex flex-wrap gap-2">
+            <button type="submit" class="btn btn-danger"><i class="bi bi-trash3" aria-hidden="true"></i> Confirmar remoção</button>
+            <a class="btn btn-light" asp-action="Details" asp-route-id="@Model.Id">Cancelar</a>
+        </form>
+    </div>
+</section>

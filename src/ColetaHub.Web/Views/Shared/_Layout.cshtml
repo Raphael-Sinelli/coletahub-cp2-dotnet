@@ -1,46 +1,120 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
+@{
+    var controladorAtual = ViewContext.RouteData.Values["controller"]?.ToString();
+    var acaoAtual = ViewContext.RouteData.Values["action"]?.ToString();
+
+    // Marca o item de menu da página atual (classe "active" + aria-current).
+    bool EstaAtivo(string controlador, params string[] acoes) =>
+        string.Equals(controladorAtual, controlador, StringComparison.OrdinalIgnoreCase) &&
+        (acoes.Length == 0 || acoes.Contains(acaoAtual, StringComparer.OrdinalIgnoreCase));
+}
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ColetaHub.Web</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <meta name="description" content="ColetaHub: controle de pacotes de marketplaces em pontos de coleta e retirada." />
+    <meta name="theme-color" content="#0B3A46" />
+    <title>@ViewData["Title"] · ColetaHub</title>
+    <link rel="icon" href="~/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" />
+    <environment include="Development">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    </environment>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/ColetaHub.Web.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ColetaHub.Web</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+    <a class="visually-hidden-focusable link-pular" href="#conteudo">Pular para o conteúdo</a>
+
+    <header class="topo">
+        <nav class="navbar navbar-expand-lg navbar-dark" aria-label="Menu principal">
+            <div class="container">
+                <a class="navbar-brand marca" asp-controller="Home" asp-action="Index">
+                    <svg class="marca__logo" viewBox="0 0 32 32" width="36" height="36" aria-hidden="true">
+                        <rect width="32" height="32" rx="9" fill="#F2A541" />
+                        <path d="M16 6.5 25 11v10l-9 4.5L7 21V11z" fill="none" stroke="#0B3A46" stroke-width="2.2" stroke-linejoin="round" />
+                        <path d="M7 11l9 4.5 9-4.5M16 15.5v10" fill="none" stroke="#0B3A46" stroke-width="2.2" stroke-linejoin="round" />
+                    </svg>
+                    <span class="marca__nome">Coleta<strong>Hub</strong></span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal"
+                        aria-controls="menuPrincipal" aria-expanded="false" aria-label="Abrir menu">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                <div class="collapse navbar-collapse" id="menuPrincipal">
+                    <ul class="navbar-nav ms-auto gap-lg-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link @(EstaAtivo("Home", "Index") ? "active" : null)" aria-current="@(EstaAtivo("Home", "Index") ? "page" : null)"
+                               asp-controller="Home" asp-action="Index"><i class="bi bi-speedometer2" aria-hidden="true"></i> Início</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link @(EstaAtivo("Pacotes", "Index", "Details", "Edit", "Delete") ? "active" : null)" aria-current="@(EstaAtivo("Pacotes", "Index") ? "page" : null)"
+                               asp-controller="Pacotes" asp-action="Index"><i class="bi bi-boxes" aria-hidden="true"></i> Pacotes</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(EstaAtivo("Pacotes", "Create") ? "active" : null)" aria-current="@(EstaAtivo("Pacotes", "Create") ? "page" : null)"
+                               asp-controller="Pacotes" asp-action="Create"><i class="bi bi-plus-square" aria-hidden="true"></i> Novo pacote</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(EstaAtivo("Pacotes", "Search") ? "active" : null)" aria-current="@(EstaAtivo("Pacotes", "Search") ? "page" : null)"
+                               asp-controller="Pacotes" asp-action="Search"><i class="bi bi-search" aria-hidden="true"></i> Pesquisar</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(EstaAtivo("Home", "Sobre") ? "active" : null)" aria-current="@(EstaAtivo("Home", "Sobre") ? "page" : null)"
+                               asp-controller="Home" asp-action="Sobre"><i class="bi bi-info-circle" aria-hidden="true"></i> Sobre</a>
                         </li>
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
+    <main id="conteudo" class="container conteudo">
+        <partial name="_Alertas" />
+        @RenderBody()
+    </main>
+
+    <footer class="rodape">
         <div class="container">
-            &copy; 2026 - ColetaHub.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <div class="row g-4">
+                <div class="col-lg-5">
+                    <div class="rodape__marca">Coleta<strong>Hub</strong></div>
+                    <p class="rodape__texto">
+                        Controle de pacotes de marketplaces para pontos de coleta e retirada.
+                        Checkpoint 2 de ASP.NET Core MVC · Análise e Desenvolvimento de Sistemas · FIAP.
+                    </p>
+                    <p class="rodape__texto mb-0">Prof. Dr. Marcel Stefan Wagner</p>
+                </div>
+                <div class="col-sm-7 col-lg-4">
+                    <h2 class="rodape__titulo">Integrantes</h2>
+                    <ul class="rodape__lista">
+                        <li><span>Raphael Oliveira Sinelli Mendonça</span><span class="rodape__rm">RM 568346</span></li>
+                        <li><span>Henrique Spoltore Moreno Pavão dos Santos</span><span class="rodape__rm">RM 568130</span></li>
+                    </ul>
+                </div>
+                <div class="col-sm-5 col-lg-3">
+                    <h2 class="rodape__titulo">Atalhos</h2>
+                    <ul class="rodape__lista rodape__lista--links">
+                        <li><a asp-controller="Pacotes" asp-action="Index">Pacotes</a></li>
+                        <li><a asp-controller="Pacotes" asp-action="Search">Pesquisar</a></li>
+                        <li><a asp-controller="Home" asp-action="Sobre">Sobre o projeto</a></li>
+                        <environment include="Development">
+                            <li><a href="~/swagger">API (Swagger)</a></li>
+                        </environment>
+                    </ul>
+                </div>
+            </div>
+            <div class="rodape__base">© @DateTime.Today.Year ColetaHub · Projeto acadêmico, dados fictícios e armazenados em memória.</div>
         </div>
     </footer>
+
+    <partial name="_ModalExclusao" />
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

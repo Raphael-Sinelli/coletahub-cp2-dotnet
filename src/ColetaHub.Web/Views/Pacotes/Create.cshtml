@@ -1,0 +1,31 @@
+@model PacoteFormViewModel
+@{
+    ViewData["Title"] = "Novo pacote";
+}
+
+<nav aria-label="Trilha de navegação">
+    <ol class="breadcrumb trilha">
+        <li class="breadcrumb-item"><a asp-action="Index">Pacotes</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Novo pacote</li>
+    </ol>
+</nav>
+
+<div class="cabecalho-pagina">
+    <div>
+        <p class="sobretitulo">Entrada no balcão</p>
+        <h1 class="titulo-pagina">Registrar pacote</h1>
+        <p class="text-suave mb-0">Preencha os dados da etiqueta. Campos com erro aparecem em vermelho antes do envio.</p>
+    </div>
+</div>
+
+<form asp-action="Create" method="post" class="card-painel formulario-pacote">
+    <partial name="_Form" model="Model" />
+    <div class="formulario-pacote__acoes">
+        <a class="btn btn-light" asp-action="Index">Cancelar</a>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check2-circle" aria-hidden="true"></i> Registrar pacote</button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

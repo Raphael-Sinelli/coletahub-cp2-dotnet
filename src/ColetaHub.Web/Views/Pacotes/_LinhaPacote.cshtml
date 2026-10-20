@@ -1,0 +1,29 @@
+@model Pacote
+@* Linha da tabela de pacotes, compartilhada pela Index e pela Pesquisa. Os data-label viram rótulos no layout de cartões do celular. *@
+<tr>
+    <td data-label="Código">
+        <a class="codigo" asp-controller="Pacotes" asp-action="Details" asp-route-id="@Model.Id">@Model.CodigoRastreio</a>
+        @if (Model.Fragil)
+        {
+            <span class="tag-fragil" title="Frágil: manusear com cuidado"><i class="bi bi-exclamation-diamond-fill" aria-hidden="true"></i> Frágil</span>
+        }
+    </td>
+    <td data-label="Destinatário">
+        <div class="fw-semibold">@Model.NomeDestinatario</div>
+        <div class="small text-suave font-mono">@Model.CpfMascarado</div>
+    </td>
+    <td data-label="Marketplace">
+        <span class="marketplace" data-marketplace="@Model.Marketplace">@Model.Marketplace</span>
+    </td>
+    <td data-label="Status"><status-badge status="@Model.Status" /></td>
+    <td data-label="Recebido em" class="text-nowrap">@Model.DataRecebimento.ToString("d")</td>
+    <td data-label="No ponto"><prazo-alerta dias="@Model.DiasNoPonto" encerrado="@(!Model.EstaNoPonto)" /></td>
+    <td data-label="Valor" class="text-lg-end text-nowrap"><moeda valor="@Model.ValorDeclarado" /></td>
+    <td class="acoes">
+        <div class="acoes__grupo">
+            <botao-acao tipo="detalhes" id="@Model.Id" descricao="@Model.CodigoRastreio" compacto="true" />
+            <botao-acao tipo="editar" id="@Model.Id" descricao="@Model.CodigoRastreio" compacto="true" />
+            <botao-acao tipo="excluir" id="@Model.Id" descricao="@Model.CodigoRastreio" compacto="true" modal="true" />
+        </div>
+    </td>
+</tr>

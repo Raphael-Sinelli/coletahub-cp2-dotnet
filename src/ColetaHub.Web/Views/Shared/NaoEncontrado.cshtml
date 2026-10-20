@@ -1,0 +1,17 @@
+@{
+    ViewData["Title"] = "Não encontrado";
+}
+
+<section class="pagina-erro">
+    <div class="pagina-erro__icone"><i class="bi bi-box2" aria-hidden="true"></i></div>
+    <p class="pagina-erro__codigo">404</p>
+    <h1 class="pagina-erro__titulo">Não encontramos este pacote ou página</h1>
+    <p class="pagina-erro__texto">
+        O pacote pode ter sido removido ou o endereço foi digitado errado.
+        Confira o código de rastreio na pesquisa ou volte para a lista.
+    </p>
+    <div class="d-flex flex-wrap justify-content-center gap-2">
+        <a class="btn btn-primary" asp-controller="Pacotes" asp-action="Search"><i class="bi bi-search" aria-hidden="true"></i> Pesquisar pacote</a>
+        <a class="btn btn-outline-secondary" asp-controller="Pacotes" asp-action="Index">Ver todos os pacotes</a>
+    </div>
+</section>

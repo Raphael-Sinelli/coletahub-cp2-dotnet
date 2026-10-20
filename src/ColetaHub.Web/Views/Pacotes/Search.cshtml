@@ -1,0 +1,103 @@
+@model PacoteSearchViewModel
+@{
+    ViewData["Title"] = "Pesquisar pacotes";
+}
+
+<div class="cabecalho-pagina">
+    <div>
+        <p class="sobretitulo">Busca no balcão</p>
+        <h1 class="titulo-pagina">Pesquisar pacotes</h1>
+        <p class="text-suave mb-0">Digite parte do código de rastreio ou do nome do destinatário e combine com os filtros.</p>
+    </div>
+</div>
+
+@* Formulário GET: os filtros vão para a query string, então a busca pode ser compartilhada por link. *@
+<form asp-action="Search" method="get" class="card-painel filtros" role="search">
+    <div class="row g-3 align-items-end">
+        <div class="col-lg-4">
+            <label asp-for="Texto" class="form-label"></label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-search" aria-hidden="true"></i></span>
+                <input asp-for="Texto" class="form-control" placeholder="Ex.: QB4829 ou Ferreira" autocomplete="off" />
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-2">
+            <label asp-for="Status" class="form-label"></label>
+            <select asp-for="Status" asp-items="Html.GetEnumSelectList<StatusPacote>()" class="form-select">
+                <option value="">Todos</option>
+            </select>
+        </div>
+        <div class="col-sm-6 col-lg-2">
+            <label asp-for="Marketplace" class="form-label"></label>
+            <select asp-for="Marketplace" asp-items="Model.Marketplaces" class="form-select">
+                <option value="">Todos</option>
+            </select>
+        </div>
+        <div class="col-sm-6 col-lg-2">
+            <label asp-for="RecebidoDe" class="form-label"></label>
+            <input asp-for="RecebidoDe" class="form-control" />
+        </div>
+        <div class="col-sm-6 col-lg-2">
+            <label asp-for="RecebidoAte" class="form-label"></label>
+            <input asp-for="RecebidoAte" class="form-control" />
+        </div>
+    </div>
+    <span asp-validation-for="RecebidoAte" class="mensagem-validacao"></span>
+    <div class="filtros__acoes">
+        <a class="btn btn-light" asp-action="Search">Limpar filtros</a>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-funnel" aria-hidden="true"></i> Pesquisar</button>
+    </div>
+</form>
+
+<section class="mt-4" aria-labelledby="tituloResultados">
+    <div class="d-flex flex-wrap align-items-baseline justify-content-between gap-2 mb-3">
+        <h2 id="tituloResultados" class="h5 mb-0">
+            @if (Model.TotalResultados == 1)
+            {
+                <text>1 pacote encontrado</text>
+            }
+            else
+            {
+                <text>@Model.TotalResultados pacotes encontrados</text>
+            }
+        </h2>
+        <span class="text-suave small">@(Model.PossuiFiltros ? "Resultado filtrado" : "Sem filtros: mostrando todos os pacotes")</span>
+    </div>
+
+    @if (Model.TotalResultados == 0)
+    {
+        <empty-state titulo="Nenhum pacote encontrado" icone="search"
+                     mensagem="Nenhum pacote corresponde aos filtros. Confira o código digitado ou amplie o intervalo de datas.">
+            <a class="btn btn-outline-primary" asp-action="Search">Limpar filtros</a>
+            <a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus-lg" aria-hidden="true"></i> Registrar pacote</a>
+        </empty-state>
+    }
+    else
+    {
+        <div class="card-painel p-0">
+            <div class="table-responsive">
+                <table class="table tabela-pacotes align-middle mb-0">
+                    <caption class="visually-hidden">Resultado da pesquisa de pacotes</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Código</th>
+                            <th scope="col">Destinatário</th>
+                            <th scope="col">Marketplace</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Recebido em</th>
+                            <th scope="col">No ponto</th>
+                            <th scope="col" class="text-lg-end">Valor</th>
+                            <th scope="col" class="text-end"><span class="visually-hidden">Ações</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var pacote in Model.Resultados)
+                        {
+                            <partial name="_LinhaPacote" model="pacote" />
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</section>
