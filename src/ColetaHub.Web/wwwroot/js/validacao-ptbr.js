@@ -1,4 +1,4 @@
-// Ajustes do jQuery Validate para pt-BR e adaptador do atributo [DataNaoFutura].
+// Ajustes do jQuery Validate para pt-BR e adaptadores dos atributos [DataNaoFutura] e [Cpf].
 (function ($) {
     'use strict';
 
@@ -44,4 +44,30 @@
     });
 
     $.validator.unobtrusive.adapters.addBool('datanaofutura');
+
+    // [Cpf] emite data-val-cpf: mesmo algoritmo do CpfAttribute (formato com máscara + dígitos módulo 11).
+    function cpfValido(cpf) {
+        if (!/^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(cpf)) {
+            return false;
+        }
+        var d = cpf.replace(/\D/g, '').split('').map(Number);
+        if (d.every(function (n) { return n === d[0]; })) {
+            return false;
+        }
+        function digito(quantidade) {
+            var soma = 0;
+            for (var i = 0; i < quantidade; i++) {
+                soma += d[i] * (quantidade + 1 - i);
+            }
+            var resto = soma * 10 % 11;
+            return resto === 10 ? 0 : resto;
+        }
+        return d[9] === digito(9) && d[10] === digito(10);
+    }
+
+    $.validator.addMethod('cpf', function (valor, elemento) {
+        return this.optional(elemento) || cpfValido(valor);
+    });
+
+    $.validator.unobtrusive.adapters.addBool('cpf');
 })(jQuery);

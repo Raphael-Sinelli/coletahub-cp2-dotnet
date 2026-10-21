@@ -167,7 +167,7 @@
         "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"codigoRastreio\": \"{{codigoRastreio}}\",\n  \"nomeDestinatario\": \"Patrícia Moura Andrade\",\n  \"cpfDestinatario\": \"391.552.708-60\",\n  \"marketplace\": \"Magalu\",\n  \"pesoKg\": 4.6,\n  \"valorDeclarado\": 879.9,\n  \"dataRecebimento\": \"{{hoje}}\",\n  \"dataRetirada\": null,\n  \"status\": \"Recebido\",\n  \"tipoOperacao\": \"RetiradaCliente\",\n  \"fragil\": true,\n  \"observacoes\": \"Liquidificador. Cliente de Santo Amaro retira no sábado.\"\n}",
+          "raw": "{\n  \"codigoRastreio\": \"{{codigoRastreio}}\",\n  \"nomeDestinatario\": \"Patrícia Moura Andrade\",\n  \"cpfDestinatario\": \"391.552.708-40\",\n  \"marketplace\": \"Magalu\",\n  \"pesoKg\": 4.6,\n  \"valorDeclarado\": 879.9,\n  \"dataRecebimento\": \"{{hoje}}\",\n  \"dataRetirada\": null,\n  \"status\": \"Recebido\",\n  \"tipoOperacao\": \"RetiradaCliente\",\n  \"fragil\": true,\n  \"observacoes\": \"Liquidificador. Cliente de Santo Amaro retira no sábado.\"\n}",
           "options": { "raw": { "language": "json" } }
         },
         "url": { "raw": "{{baseUrl}}/api/pacotes", "host": ["{{baseUrl}}"], "path": ["api", "pacotes"] },
@@ -286,7 +286,7 @@
         "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"id\": {{pacoteId}},\n  \"codigoRastreio\": \"{{codigoRastreio}}\",\n  \"nomeDestinatario\": \"Patrícia Moura Andrade\",\n  \"cpfDestinatario\": \"391.552.708-60\",\n  \"marketplace\": \"Magalu\",\n  \"pesoKg\": 4.6,\n  \"valorDeclarado\": 879.9,\n  \"dataRecebimento\": \"{{hoje}}\",\n  \"dataRetirada\": \"{{hoje}}\",\n  \"status\": \"Retirado\",\n  \"tipoOperacao\": \"RetiradaCliente\",\n  \"fragil\": true,\n  \"observacoes\": \"Retirado pela própria cliente com documento.\"\n}",
+          "raw": "{\n  \"id\": {{pacoteId}},\n  \"codigoRastreio\": \"{{codigoRastreio}}\",\n  \"nomeDestinatario\": \"Patrícia Moura Andrade\",\n  \"cpfDestinatario\": \"391.552.708-40\",\n  \"marketplace\": \"Magalu\",\n  \"pesoKg\": 4.6,\n  \"valorDeclarado\": 879.9,\n  \"dataRecebimento\": \"{{hoje}}\",\n  \"dataRetirada\": \"{{hoje}}\",\n  \"status\": \"Retirado\",\n  \"tipoOperacao\": \"RetiradaCliente\",\n  \"fragil\": true,\n  \"observacoes\": \"Retirado pela própria cliente com documento.\"\n}",
           "options": { "raw": { "language": "json" } }
         },
         "url": { "raw": "{{baseUrl}}/api/pacotes/{{pacoteId}}", "host": ["{{baseUrl}}"], "path": ["api", "pacotes", "{{pacoteId}}"] },
@@ -338,7 +338,7 @@
         "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"codigoRastreio\": \"ZZ000000000BR\",\n  \"nomeDestinatario\": \"Ninguém Cadastrado\",\n  \"cpfDestinatario\": \"000.000.000-00\",\n  \"marketplace\": \"Amazon\",\n  \"pesoKg\": 1,\n  \"valorDeclarado\": 10,\n  \"dataRecebimento\": \"{{hoje}}\",\n  \"status\": \"Recebido\",\n  \"tipoOperacao\": \"RetiradaCliente\",\n  \"fragil\": false\n}",
+          "raw": "{\n  \"codigoRastreio\": \"ZZ000000000BR\",\n  \"nomeDestinatario\": \"Ninguém Cadastrado\",\n  \"cpfDestinatario\": \"246.813.579-28\",\n  \"marketplace\": \"Amazon\",\n  \"pesoKg\": 1,\n  \"valorDeclarado\": 10,\n  \"dataRecebimento\": \"{{hoje}}\",\n  \"status\": \"Recebido\",\n  \"tipoOperacao\": \"RetiradaCliente\",\n  \"fragil\": false\n}",
           "options": { "raw": { "language": "json" } }
         },
         "url": { "raw": "{{baseUrl}}/api/pacotes/999999", "host": ["{{baseUrl}}"], "path": ["api", "pacotes", "999999"] }

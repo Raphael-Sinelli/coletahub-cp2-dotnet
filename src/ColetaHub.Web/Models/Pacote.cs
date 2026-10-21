@@ -31,7 +31,7 @@ public class Pacote : IValidatableObject
     public string NomeDestinatario { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Informe o CPF do destinatário.")]
-    [RegularExpression(@"^\d{3}\.\d{3}\.\d{3}-\d{2}$", ErrorMessage = "Use o formato 000.000.000-00.")]
+    [Cpf]
     [Display(Name = "CPF do destinatário")]
     public string CpfDestinatario { get; set; } = string.Empty;
 

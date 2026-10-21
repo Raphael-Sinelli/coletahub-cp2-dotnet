@@ -164,4 +164,45 @@ public class IntegracaoWebTests : IClassFixture<WebApplicationFactory<Program>>
         Assert.Equal("Um ou mais campos são inválidos.", problema.GetProperty("title").GetString());
         Assert.True(problema.GetProperty("errors").TryGetProperty("CpfDestinatario", out _));
     }
+
+    [Theory]
+    [InlineData("123.456.789-08")]
+    [InlineData("111.111.111-11")]
+    public async Task Create_CpfComDigitoErradoOuRepetido_RecusaSemSalvar(string cpf)
+    {
+        var cliente = CriarCliente();
+        var token = await ObterTokenAsync(cliente);
+        var codigo = CodigoUnico();
+        var formulario = FormularioValido(token, codigo);
+        formulario["Pacote.CpfDestinatario"] = cpf;
+
+        var resposta = await cliente.PostAsync("/Pacotes/Create", new FormUrlEncodedContent(formulario));
+
+        Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
+        Assert.Contains("Informe um CPF válido no formato 000.000.000-00.", await LerHtmlAsync(resposta));
+        var encontrados = await cliente.GetFromJsonAsync<JsonElement>($"/api/pacotes/pesquisa?texto={codigo}");
+        Assert.Equal(0, encontrados.GetArrayLength());
+    }
+
+    [Fact]
+    public async Task Api_CpfComDigitoErrado_Retorna400()
+    {
+        var resposta = await CriarCliente().PostAsJsonAsync("/api/pacotes", new
+        {
+            codigoRastreio = CodigoUnico(),
+            nomeDestinatario = "Teste de Integração",
+            cpfDestinatario = "391.552.708-60",
+            marketplace = "Amazon",
+            pesoKg = 1.2m,
+            valorDeclarado = 99.9m,
+            dataRecebimento = DateTime.Today.ToString("yyyy-MM-dd"),
+            status = "Recebido",
+            tipoOperacao = "RetiradaCliente",
+            fragil = false
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, resposta.StatusCode);
+        var erros = (await resposta.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("errors");
+        Assert.Equal("Informe um CPF válido no formato 000.000.000-00.", erros.GetProperty("CpfDestinatario")[0].GetString());
+    }
 }
