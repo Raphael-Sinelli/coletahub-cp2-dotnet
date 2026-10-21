@@ -50,6 +50,11 @@ classDiagram
         +IsValid(object, ValidationContext) ValidationResult
         +AddValidation(ClientModelValidationContext)
     }
+    class CpfAttribute {
+        +EhValido(string) bool
+        +IsValid(object) bool
+        +AddValidation(ClientModelValidationContext)
+    }
 
     class IPacoteRepository {
         <<interface>>
@@ -134,6 +139,7 @@ classDiagram
     Pacote --> StatusPacote
     Pacote --> TipoOperacao
     Pacote ..> DataNaoFuturaAttribute : usa
+    Pacote ..> CpfAttribute : usa
     IPacoteRepository <|.. InMemoryPacoteRepository
     InMemoryPacoteRepository o-- Pacote
     InMemoryPacoteRepository ..> PacoteSeed : carga inicial

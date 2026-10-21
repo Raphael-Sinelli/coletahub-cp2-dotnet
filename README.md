@@ -5,6 +5,8 @@
 | Raphael Oliveira Sinelli Mendonça | **RM 568346** |
 | Henrique Spoltore Moreno Pavão dos Santos | **RM 568130** |
 
+> Trabalho desenvolvido em dupla, com autorização do professor.
+
 **FIAP · Análise e Desenvolvimento de Sistemas · Prof. Dr. Marcel Stefan Wagner**
 Repositório: https://github.com/Raphael-Sinelli/coletahub-cp2-dotnet
 
@@ -63,8 +65,8 @@ O que o sistema entrega:
 | ASP.NET Core MVC | 8.0 | Controllers, Views Razor, Tag Helpers |
 | C# | 12 | Linguagem |
 | Bootstrap | 5.1.0 (vem no template, em `wwwroot/lib`) | Grid, componentes, modal |
-| Bootstrap Icons | 1.11.3 (CDN jsDelivr) | Ícones |
-| Google Fonts | Plus Jakarta Sans e JetBrains Mono | Tipografia (texto e códigos) |
+| Bootstrap Icons | 1.11.3 (local, em `wwwroot/lib/bootstrap-icons`) | Ícones |
+| Fontes (Google Fonts) | Plus Jakarta Sans e JetBrains Mono 5.3.0, versões variáveis (locais, em `wwwroot/lib/fontes`) | Tipografia (texto e códigos) |
 | jQuery | 3.6.0 | Base do jQuery Validate |
 | jQuery Validation + Unobtrusive | 1.19.5 / 4.0.0 | Validação no navegador |
 | Swagger UI (Swashbuckle) | 6.9.0 | Documentação OpenAPI |
@@ -105,7 +107,7 @@ Extensões recomendadas (todas opcionais):
 | Extensão | Para quê |
 |---|---|
 | Razor Language Services / Web Tools (nativo) | IntelliSense dos Tag Helpers customizados nas views |
-| Test Explorer (nativo) | Rodar os 77 testes xUnit |
+| Test Explorer (nativo) | Rodar os 101 testes xUnit |
 | Markdown Editor v2 | Visualizar este README com os diagramas Mermaid |
 | Postman (app desktop) ou Postman for VS Code | Importar e rodar a coleção em `docs/postman` |
 
@@ -235,6 +237,11 @@ classDiagram
         +IsValid(object, ValidationContext) ValidationResult
         +AddValidation(ClientModelValidationContext)
     }
+    class CpfAttribute {
+        +EhValido(string) bool
+        +IsValid(object) bool
+        +AddValidation(ClientModelValidationContext)
+    }
 
     class IPacoteRepository {
         <<interface>>
@@ -319,6 +326,7 @@ classDiagram
     Pacote --> StatusPacote
     Pacote --> TipoOperacao
     Pacote ..> DataNaoFuturaAttribute : usa
+    Pacote ..> CpfAttribute : usa
     IPacoteRepository <|.. InMemoryPacoteRepository
     InMemoryPacoteRepository o-- Pacote
     InMemoryPacoteRepository ..> PacoteSeed : carga inicial
@@ -375,7 +383,8 @@ Cp2/
 │   ├── ModelBinding/
 │   │   └── DecimalBrasileiroModelBinder.cs # Decimal pt-BR no servidor (recusa "2.5")
 │   ├── Validation/
-│   │   └── DataNaoFuturaAttribute.cs  # Atributo customizado (servidor + cliente)
+│   │   ├── DataNaoFuturaAttribute.cs  # Atributo customizado: data não futura (servidor + cliente)
+│   │   └── CpfAttribute.cs            # Atributo customizado: CPF com dígitos verificadores (servidor + cliente)
 │   ├── Repositories/
 │   │   ├── IPacoteRepository.cs       # Contrato do repositório
 │   │   ├── InMemoryPacoteRepository.cs# ConcurrentDictionary + Interlocked (Singleton)
@@ -395,12 +404,13 @@ Cp2/
 │       ├── js/site.js                 # Modal, máscaras, alertas que somem
 │       ├── js/validacao-ptbr.js       # Vírgula decimal + adaptador DataNaoFutura
 │       ├── favicon.svg
-│       └── lib/                       # Bootstrap, jQuery, jQuery Validate (template)
+│       └── lib/                       # Bootstrap, jQuery, jQuery Validate, Bootstrap Icons e fontes, todos locais
 └── tests/ColetaHub.Tests/             # xUnit (net8.0)
     ├── InMemoryPacoteRepositoryTests.cs
     ├── PacotesControllerTests.cs
     ├── PacotesApiControllerTests.cs
     ├── ValidacaoPacoteTests.cs
+    ├── CpfAttributeTests.cs           # CPF válido, dígito errado, sequência repetida, formato errado
     ├── IntegracaoWebTests.cs          # Pipeline HTTP real (WebApplicationFactory), sem JavaScript
     └── PacoteFabrica.cs               # Objetos válidos e TempData para os testes
 ```
@@ -417,7 +427,7 @@ Cp2/
 | **Post/Redirect/Get (PRG)** | `PacotesController` (Create, Edit, DeleteConfirmed) | Todo POST bem-sucedido termina em `RedirectToAction`. Atualizar a página (F5) não reenvia o formulário |
 | **ViewModel** | `ViewModels/` | `PacoteFormViewModel` leva o pacote e a lista de marketplaces; `PacoteSearchViewModel` leva filtros e resultados; `HomeDashboardViewModel` leva os indicadores |
 | **Data Annotations** | `Models/Pacote.cs` | `[Required]`, `[StringLength]`, `[RegularExpression]`, `[Range]`, `[DataType]`, `[Display]` com mensagens em português |
-| **Atributo de validação customizado** | `Validation/DataNaoFuturaAttribute.cs` | Herda de `ValidationAttribute` e implementa `IClientModelValidator`: valida no servidor e emite `data-val-datanaofutura` para o jQuery Validate |
+| **Atributos de validação customizados** | `Validation/DataNaoFuturaAttribute.cs`, `Validation/CpfAttribute.cs` | Herdam de `ValidationAttribute` e implementam `IClientModelValidator`: validam no servidor e emitem `data-val-datanaofutura` / `data-val-cpf`, lidos por adaptadores do jQuery Validate com o mesmo algoritmo |
 | **IValidatableObject** | `Pacote.Validate` | Regras entre propriedades: a data de saída não pode ser anterior ao recebimento, só existe com status Retirado ou Coletado e é obrigatória nesses dois status |
 | **Antiforgery** | `[ValidateAntiForgeryToken]` em todo POST; o Form Tag Helper gera o token | Protege Create, Edit e Delete contra CSRF |
 | **TempData + partial** | `Views/Shared/_Alertas.cshtml` | A mensagem do POST sobrevive ao redirect e aparece no layout. O alerta some em 5 s |
@@ -436,7 +446,7 @@ Entidade **`Pacote`** (`src/ColetaHub.Web/Models/Pacote.cs`). As linhas em **neg
 | `Id` | `int` | gerado pelo repositório (`Interlocked.Increment`) | Identificador incremental |
 | **`CodigoRastreio`** | **`string`** | `[Required]`, `[StringLength(13, MinimumLength = 13)]`, `[RegularExpression(@"^[A-Z]{2}\d{9}BR$")]`, código único (checado no controller) | Formato das etiquetas nacionais: 2 letras, 9 dígitos e "BR" (ex.: `QB482917365BR`) |
 | `NomeDestinatario` | `string` | `[Required]`, `[StringLength(100, MinimumLength = 3)]` | Nome de quem retira |
-| `CpfDestinatario` | `string` | `[Required]`, `[RegularExpression(@"^\d{3}\.\d{3}\.\d{3}-\d{2}$")]` | Escolhemos CPF (e não telefone) porque é o documento conferido no balcão. A máscara JS formata enquanto o usuário digita |
+| `CpfDestinatario` | `string` | `[Required]`, **`[Cpf]`** (atributo customizado: formato `000.000.000-00` e dígitos verificadores pelo módulo 11, rejeitando sequências repetidas como `111.111.111-11`) | Escolhemos CPF (e não telefone) porque é o documento conferido no balcão. A máscara JS formata enquanto o usuário digita, e um CPF inexistente é recusado no navegador e no servidor |
 | **`Marketplace`** | **`string` escolhida em lista vinda do Controller** | `[Required]`, `[StringLength(30)]`, precisa existir no catálogo (`IMarketplaceService.Existe`) | **Requisito "string escolhida pelo usuário com dados do Controller"**: `PacotesController.MontarOpcoesMarketplace()` lê o `IMarketplaceService` e envia `IEnumerable<SelectListItem>` em `PacoteFormViewModel.Marketplaces`. A view renderiza com `<select asp-for asp-items>` |
 | **`PesoKg`** | **`decimal`** (número) | `[Required]`, `[Range(0.01, 30)]` | Limite comum dos pontos de coleta. Aceita vírgula (`2,35`) |
 | `ValorDeclarado` | `decimal` | `[Required]`, `[DataType(DataType.Currency)]`, `[Range(0, 50000)]` | Valor da nota, exibido pelo `<moeda>` |
@@ -455,8 +465,10 @@ Valores do enum **`StatusPacote`**: Recebido, Aguardando retirada, Aguardando co
 **Validação no navegador:** `_ValidationScriptsPartial` carrega o jQuery Validate, o Unobtrusive e o `wwwroot/js/validacao-ptbr.js`, que:
 
 - troca as regras `number` e `range` para aceitar o formato brasileiro (`1.234,56`) e recusar `12.5`, que no servidor pt-BR seria lido como 125;
-- registra o adaptador `datanaofutura` do atributo customizado;
+- registra os adaptadores `datanaofutura` e `cpf` dos atributos customizados;
 - traduz as mensagens padrão do plugin.
+
+**Validação de CPF:** o `[Cpf]` (`Validation/CpfAttribute.cs`) exige o formato `000.000.000-00` e confere os dois dígitos verificadores. Cada dígito é a soma ponderada dos anteriores (pesos de 10 a 2 e de 11 a 2), multiplicada por 10 e tomada módulo 11, com resto 10 virando 0. Sequências repetidas (`000.000.000-00` a `999.999.999-99`) passam nessa conta mas não são CPFs emitidos, então também são recusadas. O mesmo algoritmo roda no navegador (adaptador `cpf` em `validacao-ptbr.js`), no POST do formulário e na API, sempre com a mensagem "Informe um CPF válido no formato 000.000.000-00.". Os 14 CPFs do seed têm dígitos corretos, e um teste garante isso.
 
 No servidor, o `DecimalBrasileiroModelBinder` aplica a mesma regra: aceita `2,5`, `149,90` e `1.234,56` e recusa `2.5` com a mensagem "O campo Peso (kg) deve ser um número com vírgula nas casas decimais". Assim, quem envia o formulário sem JavaScript não grava 25 kg por engano. As demais mensagens de model binding também foram traduzidas no `Program.cs`. As propriedades calculadas (`DiasNoPonto`, `EstaNoPonto`, `CpfMascarado`) têm `[ValidateNever]` para o validador não as avaliar.
 
@@ -766,7 +778,7 @@ Prints capturados com Playwright (Microsoft Edge) com a aplicação rodando: des
 
 ## 13. Testes
 
-### 13.1 xUnit: 77 testes passando
+### 13.1 xUnit: 101 testes passando
 
 ```bash
 dotnet test
@@ -779,7 +791,8 @@ dotnet test
 | `PacotesControllerTests` (16) | **Create com ModelState inválido retorna a view com o dropdown repopulado**, Create válido redireciona com TempData, marketplace fora do catálogo, código duplicado, **Delete de Id inexistente retorna NotFound**, Details/Edit inexistentes, Delete GET não remove, DeleteConfirmed remove (e trata Id inexistente), Edit com Id divergente, Search filtra e mantém filtros, intervalo de datas invertido, ordenação da Index |
 | `ValidacaoPacoteTests` (28) | **`[DataNaoFutura]`** (amanhã inválido, hoje válido, nulo válido, mensagem), **`IValidatableObject`** (saída antes do recebimento, saída com status que não saiu, saída obrigatória para Retirado), formato de código e CPF, faixa de peso, tamanho das observações, `DiasNoPonto`, `CpfMascarado` (inclusive com CPF nulo), todos os pacotes do seed válidos |
 | `PacotesApiControllerTests` (8) | 200, 201 com `CreatedAtAction`, 204, 400 e 404 da API |
-| `IntegracaoWebTests` (9) | Pipeline HTTP real com `WebApplicationFactory`, como um navegador sem JavaScript: formulário vazio mostra os erros sem exceção e com o dropdown repopulado; `2,5`/`149,90` são gravados corretamente e `2.5`/`149.90` recusados; GET em Delete não remove; POST sem token antiforgery dá 400; Details inexistente dá a página 404; filtro inválido na URL mostra mensagem; API com CPF nulo dá 400 com título em português |
+| `CpfAttributeTests` (21) | CPF válido; **dígito verificador errado**; **sequências repetidas** (`000…`, `111…`, `555…`, `999…`); **formato errado** (sem máscara, incompleto, separadores trocados, letras); vazio deixa para o `[Required]`; mensagem em português no `Pacote`; todos os CPFs do seed válidos |
+| `IntegracaoWebTests` (12) | Pipeline HTTP real com `WebApplicationFactory`, como um navegador sem JavaScript: CPF com dígito errado ou repetido recusado no formulário e na API (400); formulário vazio mostra os erros sem exceção e com o dropdown repopulado; `2,5`/`149,90` são gravados corretamente e `2.5`/`149.90` recusados; GET em Delete não remove; POST sem token antiforgery dá 400; Details inexistente dá a página 404; filtro inválido na URL mostra mensagem; API com CPF nulo dá 400 com título em português |
 
 ![Testes xUnit](docs/prints/17-testes-xunit.png)
 
@@ -885,6 +898,8 @@ Seguindo o requisito, **não há banco de dados**. Os pacotes ficam em um `Concu
 | Swashbuckle em vez de OpenAPI nativo com Scalar | Caminho indicado para .NET 8 |
 | CPF em vez de telefone | É o documento conferido na retirada |
 | Formato do código `AA123456789BR` | Padrão das etiquetas nacionais de rastreio |
+| CPF com dígitos verificadores, sem duplicar mensagem | O `[Cpf]` substitui o antigo `[RegularExpression]` do CPF e cobre formato e dígitos numa regra só, para o usuário ver uma única mensagem |
+| Ícones e fontes locais | A aplicação renderiza igual sem internet (laboratório, projetor, correção offline); testado com todas as requisições externas bloqueadas |
 | Pacote devolvido sem data de saída | A data de saída é exclusiva de Retirado e Coletado (regra do `IValidatableObject`); em Details, um devolvido mostra "Não se aplica" e o tempo conta desde o recebimento |
 | Zip sem a pasta `.git` | O histórico completo está no GitHub; o zip leva o código, a solution e as pastas Debug e Release |
 | Data de saída obrigatória para Retirado/Coletado | Completa a regra do `IValidatableObject`: se o pacote saiu, a data precisa existir |
