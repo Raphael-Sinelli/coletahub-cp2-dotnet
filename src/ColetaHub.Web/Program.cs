@@ -15,9 +15,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services
     .AddControllersWithViews(opcoes =>
     {
-        // Mensagens de model binding em português (ex.: "O campo Peso (kg) deve ser um número.").
+        // Mensagens de model binding em português. A de número vale para o navegador (data-val-number)
+        // e para o DecimalBrasileiroModelBinder no servidor, então as duas validações dizem o mesmo.
         var mensagens = opcoes.ModelBindingMessageProvider;
-        mensagens.SetValueMustBeANumberAccessor(campo => $"O campo {campo} deve ser um número.");
+        mensagens.SetValueMustBeANumberAccessor(campo => $"O campo {campo} deve ser um número com vírgula nas casas decimais (ex.: 2,5).");
         mensagens.SetAttemptedValueIsInvalidAccessor((valor, campo) => $"O valor '{valor}' não é válido para {campo}.");
         mensagens.SetValueIsInvalidAccessor(valor => $"O valor '{valor}' é inválido.");
         // Este acessor recebe o valor digitado (vazio), não o nome do campo.

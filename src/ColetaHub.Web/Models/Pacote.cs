@@ -14,6 +14,9 @@ public class Pacote : IValidatableObject
     /// <summary>Limite, em dias, a partir do qual o pacote é considerado parado no ponto.</summary>
     public const int DiasLimiteNoPonto = 7;
 
+    // [Required] explícito em Id e Fragil: sem ele o MVC cria um implícito (tipos não anuláveis)
+    // com a mensagem padrão em inglês no atributo data-val-required.
+    [Required(ErrorMessage = "O identificador do pacote é obrigatório.")]
     public int Id { get; set; }
 
     [Required(ErrorMessage = "Informe o código de rastreio.")]
@@ -71,6 +74,7 @@ public class Pacote : IValidatableObject
     [Display(Name = "Tipo de operação")]
     public TipoOperacao TipoOperacao { get; set; } = TipoOperacao.RetiradaCliente;
 
+    [Required(ErrorMessage = "Informe se o pacote é frágil.")]
     [Display(Name = "Frágil")]
     public bool Fragil { get; set; }
 

@@ -50,8 +50,9 @@ public sealed partial class DecimalBrasileiroModelBinder : IModelBinder
         }
         else
         {
+            // Mesma mensagem configurada no Program.cs e exibida pelo jQuery Validate (data-val-number).
             bindingContext.ModelState.TryAddModelError(bindingContext.ModelName,
-                $"O campo {campo} deve ser um número com vírgula nas casas decimais (ex.: 2,5).");
+                bindingContext.ModelMetadata.ModelBindingMessageProvider.ValueMustBeANumberAccessor(campo));
         }
 
         return Task.CompletedTask;
