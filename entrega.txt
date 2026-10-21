@@ -2,7 +2,7 @@ ColetaHub - Checkpoint 2 de ASP.NET Core MVC
 FIAP - Análise e Desenvolvimento de Sistemas
 Prof. Dr. Marcel Stefan Wagner
 
-Repositório: {{URL_REPOSITORIO}}
+Repositório: https://github.com/Raphael-Sinelli/coletahub-cp2-dotnet
 
 Integrantes:
 - Raphael Oliveira Sinelli Mendonça - RM 568346

@@ -6,7 +6,7 @@
 | Henrique Spoltore Moreno Pavão dos Santos | **RM 568130** |
 
 **FIAP · Análise e Desenvolvimento de Sistemas · Prof. Dr. Marcel Stefan Wagner**
-Repositório: {{URL_REPOSITORIO}}
+Repositório: https://github.com/Raphael-Sinelli/coletahub-cp2-dotnet
 
 ![Painel do ColetaHub](docs/prints/01-home.png)
 
