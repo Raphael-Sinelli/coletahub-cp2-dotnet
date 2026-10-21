@@ -60,7 +60,7 @@ public class ValidacaoPacoteTests
     {
         var erro = Validar(PacoteFabrica.Valido(p => p.DataRecebimento = DateTime.Today.AddDays(3))).Single();
 
-        Assert.Equal("A Data de recebimento não pode estar no futuro.", erro.ErrorMessage);
+        Assert.Equal("Data de recebimento não pode ser uma data futura.", erro.ErrorMessage);
     }
 
     // ---------- IValidatableObject ----------
@@ -182,5 +182,15 @@ public class ValidacaoPacoteTests
     public void CpfMascarado_OcultaPrimeirosEUltimosDigitos()
     {
         Assert.Equal("***.456.789-**", PacoteFabrica.Valido().CpfMascarado);
+    }
+
+    [Fact]
+    public void CpfMascarado_CpfNulo_RetornaVazioSemExcecao()
+    {
+        // O model binding converte o campo vazio em null; antes da correção isto lançava NullReferenceException.
+        var pacote = PacoteFabrica.Valido(p => p.CpfDestinatario = null!);
+
+        Assert.Equal(string.Empty, pacote.CpfMascarado);
+        Assert.Contains(Validar(pacote), e => e.MemberNames.Contains(nameof(Pacote.CpfDestinatario)));
     }
 }

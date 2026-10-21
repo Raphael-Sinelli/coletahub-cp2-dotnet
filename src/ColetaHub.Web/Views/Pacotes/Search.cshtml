@@ -13,19 +13,21 @@
 
 @* Formulário GET: os filtros vão para a query string, então a busca pode ser compartilhada por link. *@
 <form asp-action="Search" method="get" class="card-painel filtros" role="search">
-    <div class="row g-3 align-items-end">
+    <div class="row g-3 align-items-start">
         <div class="col-lg-3">
             <label asp-for="Texto" class="form-label"></label>
             <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-search" aria-hidden="true"></i></span>
                 <input asp-for="Texto" class="form-control" placeholder="Ex.: QB4829 ou Ferreira" autocomplete="off" />
             </div>
+            <span asp-validation-for="Texto" class="mensagem-validacao"></span>
         </div>
         <div class="col-sm-6 col-lg-3">
             <label asp-for="Status" class="form-label"></label>
             <select asp-for="Status" asp-items="Html.GetEnumSelectList<StatusPacote>()" class="form-select">
                 <option value="">Todos</option>
             </select>
+            <span asp-validation-for="Status" class="mensagem-validacao"></span>
         </div>
         <div class="col-sm-6 col-lg-2">
             <label asp-for="Marketplace" class="form-label"></label>
@@ -36,13 +38,14 @@
         <div class="col-sm-6 col-lg-2">
             <label asp-for="RecebidoDe" class="form-label"></label>
             <input asp-for="RecebidoDe" class="form-control" />
+            <span asp-validation-for="RecebidoDe" class="mensagem-validacao"></span>
         </div>
         <div class="col-sm-6 col-lg-2">
             <label asp-for="RecebidoAte" class="form-label"></label>
             <input asp-for="RecebidoAte" class="form-control" />
+            <span asp-validation-for="RecebidoAte" class="mensagem-validacao"></span>
         </div>
     </div>
-    <span asp-validation-for="RecebidoAte" class="mensagem-validacao"></span>
     <div class="filtros__acoes">
         <a class="btn btn-light" asp-action="Search">Limpar filtros</a>
         <button type="submit" class="btn btn-primary"><i class="bi bi-funnel" aria-hidden="true"></i> Pesquisar</button>

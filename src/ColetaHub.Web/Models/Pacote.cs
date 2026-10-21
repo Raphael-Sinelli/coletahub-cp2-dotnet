@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using ColetaHub.Web.Validation;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace ColetaHub.Web.Models;
 
@@ -80,17 +80,18 @@ public class Pacote : IValidatableObject
     public string? Observacoes { get; set; }
 
     /// <summary>Indica se o pacote ainda está fisicamente no ponto (não saiu nem foi devolvido).</summary>
-    [NotMapped]
+    [ValidateNever]
     public bool EstaNoPonto => Status is StatusPacote.Recebido or StatusPacote.AguardandoRetirada or StatusPacote.AguardandoColeta;
 
-    /// <summary>Dias entre o recebimento e a saída (ou hoje, se ainda não saiu). Calculado, não persistido.</summary>
-    [NotMapped]
+    /// <summary>Dias entre o recebimento e a saída (ou hoje, se não há data de saída). Calculado, não persistido.</summary>
+    [ValidateNever]
     [Display(Name = "Dias no ponto")]
     public int DiasNoPonto => Math.Max(0, ((DataRetirada ?? DateTime.Today).Date - DataRecebimento.Date).Days);
 
     /// <summary>CPF parcialmente oculto para listagens (LGPD): ***.456.789-**.</summary>
-    [NotMapped]
-    public string CpfMascarado => CpfDestinatario.Length == 14 ? $"***{CpfDestinatario[3..11]}-**" : CpfDestinatario;
+    /// <remarks>Tolera CPF nulo: o model binding converte o campo vazio em null antes da validação.</remarks>
+    [ValidateNever]
+    public string CpfMascarado => CpfDestinatario is { Length: 14 } cpf ? $"***{cpf[3..11]}-**" : CpfDestinatario ?? string.Empty;
 
     /// <summary>
     /// Regras que envolvem mais de uma propriedade. O MVC executa este método depois que

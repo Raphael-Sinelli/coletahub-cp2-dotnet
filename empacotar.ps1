@@ -6,8 +6,8 @@
     1. Compila a solution em Debug e em Release (cria src/ColetaHub.Web/bin/Debug e bin/Release).
     2. Roda os testes xUnit.
     3. Compacta a pasta inteira do projeto em ColetaHub_CP2.zip, na raiz, com a pasta ColetaHub_CP2 dentro
-       do zip. Ficam de fora os arquivos ignorados pelo git (.vs, node_modules, o próprio zip), exceto
-       bin e obj, que fazem parte da entrega.
+       do zip. Ficam de fora a pasta .git (o histórico está no GitHub) e os arquivos ignorados pelo git
+       (.vs, node_modules, o próprio zip), exceto bin e obj, que fazem parte da entrega.
 
     Feche o Visual Studio e pare a aplicação antes de executar (arquivos em uso impedem o build).
 
@@ -41,7 +41,7 @@ foreach ($configuracao in 'Debug', 'Release') {
     }
 }
 
-Write-Host "==> Gerando $nomeZip (sem arquivos ignorados pelo git, exceto bin e obj)" -ForegroundColor Cyan
+Write-Host "==> Gerando $nomeZip (sem .git e sem arquivos ignorados pelo git, exceto bin e obj)" -ForegroundColor Cyan
 if (Test-Path $arquivoZip) {
     Remove-Item $arquivoZip -Force
 }
@@ -56,6 +56,7 @@ if ($LASTEXITCODE -ne 0) {
 
 $arquivos = Get-ChildItem $raiz -Recurse -File -Force | Where-Object {
     $relativo = $_.FullName.Substring($raiz.Length + 1).Replace('\', '/')
+    -not $relativo.StartsWith('.git/') -and
     -not ($ignorados | Where-Object { $relativo -eq $_ -or ($_.EndsWith('/') -and $relativo.StartsWith($_)) })
 }
 

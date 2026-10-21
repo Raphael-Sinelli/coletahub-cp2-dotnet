@@ -13,7 +13,7 @@ namespace ColetaHub.Web.ViewModels;
 public class PacoteSearchViewModel
 {
     [Display(Name = "Código ou destinatário")]
-    [StringLength(100)]
+    [StringLength(100, ErrorMessage = "Use no máximo 100 caracteres na busca.")]
     public string? Texto { get; set; }
 
     [Display(Name = "Status")]

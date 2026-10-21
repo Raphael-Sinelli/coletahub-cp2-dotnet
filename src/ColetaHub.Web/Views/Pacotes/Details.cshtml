@@ -65,9 +65,10 @@
                 <dt>@Html.DisplayNameFor(m => m.DataRecebimento)</dt>
                 <dd>@Model.DataRecebimento.ToString("D")</dd>
                 <dt>@Html.DisplayNameFor(m => m.DataRetirada)</dt>
-                <dd>@(Model.DataRetirada?.ToString("D") ?? "Ainda não saiu do ponto")</dd>
+                @* A data de saída só existe para Retirado e Coletado; um pacote devolvido saiu do ponto sem ela. *@
+                <dd>@(Model.DataRetirada?.ToString("D") ?? (Model.EstaNoPonto ? "Ainda não saiu do ponto" : "Não se aplica: devolvido ao remetente"))</dd>
                 <dt>@Html.DisplayNameFor(m => m.DiasNoPonto)</dt>
-                <dd>@Model.DiasNoPonto @(Model.DiasNoPonto == 1 ? "dia" : "dias")</dd>
+                <dd>@Model.DiasNoPonto @(Model.DiasNoPonto == 1 ? "dia" : "dias")@(Model.EstaNoPonto || Model.DataRetirada.HasValue ? null : " desde o recebimento")</dd>
             </dl>
         </section>
     </div>

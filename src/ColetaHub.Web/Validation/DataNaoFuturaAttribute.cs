@@ -13,7 +13,7 @@ namespace ColetaHub.Web.Validation;
 public sealed class DataNaoFuturaAttribute : ValidationAttribute, IClientModelValidator
 {
     public DataNaoFuturaAttribute()
-        : base("A {0} não pode estar no futuro.")
+        : base("{0} não pode ser uma data futura.")
     {
     }
 

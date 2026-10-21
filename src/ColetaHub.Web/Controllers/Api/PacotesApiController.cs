@@ -15,6 +15,9 @@ namespace ColetaHub.Web.Controllers.Api;
 [Produces("application/json")]
 public class PacotesApiController : ControllerBase
 {
+    /// <summary>Título dos erros de validação (400) devolvidos pela API.</summary>
+    public const string TituloValidacao = "Um ou mais campos são inválidos.";
+
     private readonly IPacoteRepository _repositorio;
     private readonly IMarketplaceService _marketplaces;
 
@@ -62,7 +65,7 @@ public class PacotesApiController : ControllerBase
 
         if (!ModelState.IsValid)
         {
-            return ValidationProblem(ModelState);
+            return ValidationProblem(title: TituloValidacao, modelStateDictionary: ModelState);
         }
 
         var criado = _repositorio.Adicionar(pacote);
@@ -79,7 +82,7 @@ public class PacotesApiController : ControllerBase
         if (pacote.Id != 0 && pacote.Id != id)
         {
             ModelState.AddModelError(nameof(Pacote.Id), "O Id do corpo difere do Id da URL.");
-            return ValidationProblem(ModelState);
+            return ValidationProblem(title: TituloValidacao, modelStateDictionary: ModelState);
         }
 
         if (_repositorio.ObterPorId(id) is null)
@@ -92,7 +95,7 @@ public class PacotesApiController : ControllerBase
 
         if (!ModelState.IsValid)
         {
-            return ValidationProblem(ModelState);
+            return ValidationProblem(title: TituloValidacao, modelStateDictionary: ModelState);
         }
 
         return _repositorio.Atualizar(pacote) ? NoContent() : NotFound();

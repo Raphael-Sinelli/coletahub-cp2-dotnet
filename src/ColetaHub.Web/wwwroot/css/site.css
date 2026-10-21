@@ -11,6 +11,7 @@
     --ch-petroleo-100: #dcecef;
     --ch-ambar-500: #f2a541;
     --ch-ambar-600: #d98b22;
+    --ch-ambar-700: #9a5b0b; /* âmbar para texto sobre fundo claro (contraste 5,1:1) */
     --ch-ambar-100: #fdf0db;
     --ch-areia-50: #faf8f4;
     --ch-areia-100: #f3efe7;
@@ -193,7 +194,7 @@ a:hover {
     color: var(--ch-ambar-500);
 }
 
-.topo .nav-link {
+.topo .navbar-nav .nav-link {
     display: flex;
     align-items: center;
     gap: .45rem;
@@ -204,12 +205,12 @@ a:hover {
     font-size: .95rem;
 }
 
-.topo .nav-link:hover {
+.topo .navbar-nav .nav-link:hover {
     color: #fff;
     background: rgba(255, 255, 255, .08);
 }
 
-.topo .nav-link.active {
+.topo .navbar-nav .nav-link.active {
     color: var(--ch-petroleo-900);
     background: var(--ch-ambar-500);
 }
@@ -253,7 +254,7 @@ a:hover {
     font-weight: 700;
     letter-spacing: .1em;
     text-transform: uppercase;
-    color: var(--ch-ambar-600);
+    color: var(--ch-ambar-700);
 }
 
 .titulo-pagina {

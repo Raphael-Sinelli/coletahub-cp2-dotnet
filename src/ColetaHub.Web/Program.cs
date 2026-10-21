@@ -1,9 +1,13 @@
 using System.Globalization;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using ColetaHub.Web.Controllers.Api;
+using ColetaHub.Web.ModelBinding;
 using ColetaHub.Web.Repositories;
 using ColetaHub.Web.Services;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,14 +20,30 @@ builder.Services
         mensagens.SetValueMustBeANumberAccessor(campo => $"O campo {campo} deve ser um número.");
         mensagens.SetAttemptedValueIsInvalidAccessor((valor, campo) => $"O valor '{valor}' não é válido para {campo}.");
         mensagens.SetValueIsInvalidAccessor(valor => $"O valor '{valor}' é inválido.");
-        mensagens.SetValueMustNotBeNullAccessor(campo => $"O campo {campo} é obrigatório.");
+        // Este acessor recebe o valor digitado (vazio), não o nome do campo.
+        mensagens.SetValueMustNotBeNullAccessor(_ => "Este campo é obrigatório.");
         mensagens.SetMissingBindRequiredValueAccessor(campo => $"O campo {campo} não foi informado.");
         mensagens.SetUnknownValueIsInvalidAccessor(campo => $"O valor informado para {campo} é inválido.");
         mensagens.SetNonPropertyAttemptedValueIsInvalidAccessor(valor => $"O valor '{valor}' é inválido.");
         mensagens.SetNonPropertyValueMustBeANumberAccessor(() => "O campo deve ser um número.");
         mensagens.SetMissingRequestBodyRequiredValueAccessor(() => "O corpo da requisição é obrigatório.");
+
+        // Decimais de formulário sempre no padrão brasileiro (recusa "2.5", que viraria 25).
+        opcoes.ModelBinderProviders.Insert(0, new DecimalBrasileiroModelBinderProvider());
     })
-    .AddJsonOptions(opcoes => opcoes.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+    .AddJsonOptions(opcoes => opcoes.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
+    .ConfigureApiBehaviorOptions(opcoes =>
+    {
+        // Títulos dos ProblemDetails da API em português.
+        opcoes.ClientErrorMapping[StatusCodes.Status400BadRequest].Title = "Requisição inválida.";
+        opcoes.ClientErrorMapping[StatusCodes.Status404NotFound].Title = "Recurso não encontrado.";
+        opcoes.InvalidModelStateResponseFactory = contexto =>
+        {
+            var problema = contexto.HttpContext.RequestServices.GetRequiredService<ProblemDetailsFactory>()
+                .CreateValidationProblemDetails(contexto.HttpContext, contexto.ModelState, title: PacotesApiController.TituloValidacao);
+            return new BadRequestObjectResult(problema) { ContentTypes = { "application/problem+json" } };
+        };
+    });
 
 // Injeção de dependência: Singleton mantém os dados em memória durante toda a execução.
 builder.Services.AddSingleton<IMarketplaceService, MarketplaceService>();
@@ -88,3 +108,6 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+// Exposto para os testes de integração (WebApplicationFactory<Program>).
+public partial class Program;

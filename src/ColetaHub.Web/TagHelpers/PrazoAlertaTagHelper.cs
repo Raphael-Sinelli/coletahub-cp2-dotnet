@@ -33,7 +33,7 @@ public class PrazoAlertaTagHelper : TagHelper
 
         var (modificador, icone, dica) = (Encerrado, Dias) switch
         {
-            (true, _) => ("encerrado", "bi-clock-history", "Tempo que o pacote ficou no ponto"),
+            (true, _) => ("encerrado", "bi-clock-history", "Pacote já saiu do ponto: sem alerta de prazo"),
             (false, var d) when d > Limite => ("alerta", "bi-exclamation-triangle-fill", $"Parado há mais de {Limite} dias"),
             (false, var d) when d >= Limite - 2 => ("atencao", "bi-hourglass-bottom", $"Perto do limite de {Limite} dias"),
             _ => ("ok", "bi-clock", "Dentro do prazo")

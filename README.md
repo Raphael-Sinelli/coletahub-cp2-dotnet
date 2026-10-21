@@ -58,7 +58,7 @@ O que o sistema entrega:
 
 | Tecnologia | Versão | Uso |
 |---|---|---|
-| .NET SDK | 10.0.301 (fixado em `global.json`, `rollForward: latestFeature`) | Compilação |
+| .NET SDK | 8.0 ou superior (desenvolvido e testado com o 10.0.301; sem `global.json`, o SDK instalado é usado) | Compilação |
 | Target framework | **net8.0** (LTS) | Web e testes |
 | ASP.NET Core MVC | 8.0 | Controllers, Views Razor, Tag Helpers |
 | C# | 12 | Linguagem |
@@ -83,6 +83,7 @@ O que o sistema entrega:
 | ColetaHub.Tests | `xunit.runner.visualstudio` | 2.8.2 | Executa os testes no Test Explorer e no `dotnet test` |
 | ColetaHub.Tests | `Microsoft.NET.Test.Sdk` | 17.12.0 | Host de testes do .NET |
 | ColetaHub.Tests | `coverlet.collector` | 6.0.4 | Coleta de cobertura (`dotnet test --collect:"XPlat Code Coverage"`) |
+| ColetaHub.Tests | `Microsoft.AspNetCore.Mvc.Testing` | 8.0.11 | `WebApplicationFactory` para os testes de integração pelo pipeline HTTP real |
 
 O projeto Web não usa nenhum pacote além do Swashbuckle. MVC, Tag Helpers, validação, localização e DI vêm do próprio `Microsoft.AspNetCore.App`.
 
@@ -95,18 +96,16 @@ O projeto Web não usa nenhum pacote além do Swashbuckle. MVC, Tag Helpers, val
 Pré-requisitos:
 
 - **Visual Studio 2022 (17.8 ou superior) ou Visual Studio 2026**, com a carga de trabalho **"ASP.NET e desenvolvimento Web"**;
-- **SDK do .NET 8 ou superior** (o `global.json` aceita o SDK 10.0.301 ou posterior; com o SDK 10 instalado, o VS compila `net8.0` normalmente);
+- **SDK do .NET 8 ou superior** (conforme a versão, o VS 2022 traz o SDK 8 ou 9 e o VS 2026 traz o SDK 10; todos compilam `net8.0`). O repositório não tem `global.json`, então qualquer SDK instalado a partir do 8 serve;
 - **runtime ASP.NET Core 8** (vem com o SDK 8; quem tem só o SDK 10 precisa instalar o [ASP.NET Core Runtime 8](https://dotnet.microsoft.com/download/dotnet/8.0) para executar);
 - certificado HTTPS de desenvolvimento: `dotnet dev-certs https --trust` (o VS oferece isso no primeiro F5).
-
-> Se a sua máquina tiver apenas o SDK 8, apague o `global.json` ou troque a versão para `8.0.100`. O código não usa nada exclusivo do SDK 10.
 
 Extensões recomendadas (todas opcionais):
 
 | Extensão | Para quê |
 |---|---|
 | Razor Language Services / Web Tools (nativo) | IntelliSense dos Tag Helpers customizados nas views |
-| Test Explorer (nativo) | Rodar os 67 testes xUnit |
+| Test Explorer (nativo) | Rodar os 77 testes xUnit |
 | Markdown Editor v2 | Visualizar este README com os diagramas Mermaid |
 | Postman (app desktop) ou Postman for VS Code | Importar e rodar a coleção em `docs/postman` |
 
@@ -142,7 +141,7 @@ dotnet run --project src/ColetaHub.Web --launch-profile http
 ./empacotar.ps1
 ```
 
-O script compila em Debug e Release, roda os testes e gera **`ColetaHub_CP2.zip`** com a pasta inteira: `.sln`, `src`, `tests`, `docs`, `bin/Debug` e `bin/Release`. Ficam de fora só os arquivos ignorados pelo Git (como `.vs` e `node_modules`); `bin` e `obj` entram mesmo sendo ignorados. Feche o Visual Studio e pare a aplicação antes de rodar, porque um executável em uso impede o build.
+O script compila em Debug e Release, roda os testes e gera **`ColetaHub_CP2.zip`** com a pasta inteira: `.sln`, `src`, `tests`, `docs`, `bin/Debug` e `bin/Release`. Ficam de fora a pasta `.git` (o histórico está no GitHub) e os arquivos ignorados pelo Git (como `.vs` e `node_modules`); `bin` e `obj` entram mesmo sendo ignorados. Feche o Visual Studio e pare a aplicação antes de rodar, porque um executável em uso impede o build.
 
 ---
 
@@ -350,7 +349,6 @@ Versões em imagem: [fluxo-mvc.png](docs/diagramas/fluxo-mvc.png) · [classes.pn
 ```text
 Cp2/
 ├── ColetaHub.sln                      # Solution no formato clássico (.sln), abre no VS 2022 e 2026
-├── global.json                        # Fixa o SDK (10.0.301, rollForward latestFeature)
 ├── empacotar.ps1                      # Build Debug/Release + testes + ColetaHub_CP2.zip
 ├── entrega.txt                        # Link do repositório e integrantes
 ├── README.md
@@ -374,6 +372,8 @@ Cp2/
 │   │   ├── FiltroPacote.cs            # Critérios de pesquisa
 │   │   ├── EnumExtensions.cs          # ObterNomeExibicao() lê o [Display]
 │   │   └── ErrorViewModel.cs
+│   ├── ModelBinding/
+│   │   └── DecimalBrasileiroModelBinder.cs # Decimal pt-BR no servidor (recusa "2.5")
 │   ├── Validation/
 │   │   └── DataNaoFuturaAttribute.cs  # Atributo customizado (servidor + cliente)
 │   ├── Repositories/
@@ -401,6 +401,7 @@ Cp2/
     ├── PacotesControllerTests.cs
     ├── PacotesApiControllerTests.cs
     ├── ValidacaoPacoteTests.cs
+    ├── IntegracaoWebTests.cs          # Pipeline HTTP real (WebApplicationFactory), sem JavaScript
     └── PacoteFabrica.cs               # Objetos válidos e TempData para os testes
 ```
 
@@ -422,6 +423,7 @@ Cp2/
 | **TempData + partial** | `Views/Shared/_Alertas.cshtml` | A mensagem do POST sobrevive ao redirect e aparece no layout. O alerta some em 5 s |
 | **Partial views** | `_Form`, `_LinhaPacote`, `_Alertas`, `_ModalExclusao` | O mesmo formulário serve Create e Edit; a mesma linha de tabela serve Index e Pesquisa |
 | **Localização** | `Program.cs` (`RequestLocalizationOptions`) | Cultura pt-BR fixa: `dd/MM/yyyy`, vírgula decimal e R$ |
+| **Model binder customizado** | `ModelBinding/DecimalBrasileiroModelBinder.cs` | Lê decimais de formulário no padrão brasileiro e recusa `2.5` no servidor (o binder padrão o leria como 25), com mensagem em português |
 
 ---
 
@@ -444,7 +446,7 @@ Entidade **`Pacote`** (`src/ColetaHub.Web/Models/Pacote.cs`). As linhas em **neg
 | `TipoOperacao` | `enum TipoOperacao` | `[Required]`; `[Display]` em cada valor | Retirada pelo cliente, coleta pela transportadora ou devolução |
 | **`Fragil`** | **`bool`** | (checkbox) | Gera o selo "Frágil" na lista e conta no painel |
 | `Observacoes` | `string?` | `[StringLength(300)]`, `[DataType(MultilineText)]` | Textarea com contador de caracteres |
-| `DiasNoPonto` | `int` (calculada, `[NotMapped]`) | — | Dias entre o recebimento e a saída (ou hoje). Alimenta o `<prazo-alerta>` |
+| `DiasNoPonto` | `int` (calculada, `[ValidateNever]`) | — | Dias entre o recebimento e a saída (ou hoje). Alimenta o `<prazo-alerta>` |
 | `EstaNoPonto` | `bool` (calculada) | — | Status Recebido, Aguardando retirada ou Aguardando coleta |
 | `CpfMascarado` | `string` (calculada) | — | `***.456.789-**` nas listagens (cuidado com LGPD) |
 
@@ -456,7 +458,7 @@ Valores do enum **`StatusPacote`**: Recebido, Aguardando retirada, Aguardando co
 - registra o adaptador `datanaofutura` do atributo customizado;
 - traduz as mensagens padrão do plugin.
 
-As mensagens de model binding do servidor ("O campo X deve ser um número") também foram traduzidas no `Program.cs`.
+No servidor, o `DecimalBrasileiroModelBinder` aplica a mesma regra: aceita `2,5`, `149,90` e `1.234,56` e recusa `2.5` com a mensagem "O campo Peso (kg) deve ser um número com vírgula nas casas decimais". Assim, quem envia o formulário sem JavaScript não grava 25 kg por engano. As demais mensagens de model binding também foram traduzidas no `Program.cs`. As propriedades calculadas (`DiasNoPonto`, `EstaNoPonto`, `CpfMascarado`) têm `[ValidateNever]` para o validador não as avaliar.
 
 ---
 
@@ -730,6 +732,8 @@ Prints capturados com Playwright (Microsoft Edge) com a aplicação rodando: des
 
 ![Swagger](docs/prints/12-swagger.png)
 
+**Para o usuário:** documentação interativa da API. Cada operação mostra parâmetros, corpo de exemplo e respostas possíveis, e o botão "Try it out" executa a chamada direto no navegador. Disponível em `/swagger` quando a aplicação roda em Development (perfil padrão do F5).
+
 **Implementação:** `AddSwaggerGen` com `IncludeXmlComments`; `UseSwagger`/`UseSwaggerUI` só em Development. O `HomeController` está marcado com `[ApiExplorerSettings(IgnoreApi = true)]` para não aparecer na documentação.
 
 ### 12.13 Celular
@@ -746,6 +750,8 @@ Prints capturados com Playwright (Microsoft Edge) com a aplicação rodando: des
 
 ![404](docs/prints/14-nao-encontrado.png)
 
+**Para o usuário:** quando o pacote não existe mais (por exemplo, foi removido por outro operador) ou o endereço está errado, aparece uma página explicando o motivo, com atalhos para pesquisar o pacote ou voltar à lista, em vez de um erro técnico.
+
 **Implementação:** quando uma action devolve `NotFound()` ou a rota não existe, `UseStatusCodePagesWithReExecute("/erro/{0}")` re-executa `HomeController.ErroHttp(404)`, que renderiza `Views/Shared/NaoEncontrado.cshtml`. Exceções vão para `Views/Shared/Error.cshtml`. As rotas `/api` ficam fora, para continuarem respondendo JSON.
 
 ### 12.15 Mensagem de sucesso (TempData)
@@ -754,13 +760,13 @@ Prints capturados com Playwright (Microsoft Edge) com a aplicação rodando: des
 
 **Para o usuário:** depois de salvar, editar ou excluir, uma faixa confirma a ação e some sozinha em 5 segundos (a barra inferior mostra o tempo).
 
-**Implementação:** o controller grava `TempData["Sucesso"]` ou `TempData["Erro"]` antes do `RedirectToAction`. A partial `_Alertas` (no `_Layout`) exibe a mensagem e o `site.js` fecha o alerta com `bootstrap.Alert`.
+**Implementação:** o controller grava `TempData["Sucesso"]` ou `TempData["Erro"]` (chaves `PacotesController.ChaveSucesso`/`ChaveErro`) antes do `RedirectToAction`, completando o Post/Redirect/Get. A partial `_Alertas` (no `_Layout`) exibe a mensagem e o `site.js` fecha o alerta com `bootstrap.Alert`.
 
 ---
 
 ## 13. Testes
 
-### 13.1 xUnit: 67 testes passando
+### 13.1 xUnit: 77 testes passando
 
 ```bash
 dotnet test
@@ -771,8 +777,9 @@ dotnet test
 |---|---|
 | `InMemoryPacoteRepositoryTests` (16) | Adicionar (Id incremental), obter por Id (existente, inexistente, cópia isolada), atualizar (existente e inexistente), remover, **pesquisar por trecho do código sem diferenciar maiúsculas**, pesquisar por nome, **filtrar por status**, combinar marketplace e datas, unicidade do código, cobertura do seed |
 | `PacotesControllerTests` (16) | **Create com ModelState inválido retorna a view com o dropdown repopulado**, Create válido redireciona com TempData, marketplace fora do catálogo, código duplicado, **Delete de Id inexistente retorna NotFound**, Details/Edit inexistentes, Delete GET não remove, DeleteConfirmed remove (e trata Id inexistente), Edit com Id divergente, Search filtra e mantém filtros, intervalo de datas invertido, ordenação da Index |
-| `ValidacaoPacoteTests` (27) | **`[DataNaoFutura]`** (amanhã inválido, hoje válido, nulo válido, mensagem), **`IValidatableObject`** (saída antes do recebimento, saída com status que não saiu, saída obrigatória para Retirado), formato de código e CPF, faixa de peso, tamanho das observações, `DiasNoPonto`, `CpfMascarado`, todos os pacotes do seed válidos |
+| `ValidacaoPacoteTests` (28) | **`[DataNaoFutura]`** (amanhã inválido, hoje válido, nulo válido, mensagem), **`IValidatableObject`** (saída antes do recebimento, saída com status que não saiu, saída obrigatória para Retirado), formato de código e CPF, faixa de peso, tamanho das observações, `DiasNoPonto`, `CpfMascarado` (inclusive com CPF nulo), todos os pacotes do seed válidos |
 | `PacotesApiControllerTests` (8) | 200, 201 com `CreatedAtAction`, 204, 400 e 404 da API |
+| `IntegracaoWebTests` (9) | Pipeline HTTP real com `WebApplicationFactory`, como um navegador sem JavaScript: formulário vazio mostra os erros sem exceção e com o dropdown repopulado; `2,5`/`149,90` são gravados corretamente e `2.5`/`149.90` recusados; GET em Delete não remove; POST sem token antiforgery dá 400; Details inexistente dá a página 404; filtro inválido na URL mostra mensagem; API com CPF nulo dá 400 com título em português |
 
 ![Testes xUnit](docs/prints/17-testes-xunit.png)
 
@@ -874,10 +881,12 @@ Seguindo o requisito, **não há banco de dados**. Os pacotes ficam em um `Concu
 
 | Decisão | Motivo |
 |---|---|
-| `net8.0` com SDK 10 fixado no `global.json` | Abre e roda no VS 2022 e no VS 2026 |
+| `net8.0` e sem `global.json` | Abre e roda no VS 2022 (SDK 8 ou 9) e no VS 2026 (SDK 10) sem exigir uma versão específica de SDK |
 | Swashbuckle em vez de OpenAPI nativo com Scalar | Caminho indicado para .NET 8 |
 | CPF em vez de telefone | É o documento conferido na retirada |
 | Formato do código `AA123456789BR` | Padrão das etiquetas nacionais de rastreio |
+| Pacote devolvido sem data de saída | A data de saída é exclusiva de Retirado e Coletado (regra do `IValidatableObject`); em Details, um devolvido mostra "Não se aplica" e o tempo conta desde o recebimento |
+| Zip sem a pasta `.git` | O histórico completo está no GitHub; o zip leva o código, a solution e as pastas Debug e Release |
 | Data de saída obrigatória para Retirado/Coletado | Completa a regra do `IValidatableObject`: se o pacote saiu, a data precisa existir |
 | Marketplace validado contra o catálogo também no servidor | Impede valores forjados no POST que não vieram do dropdown |
 | Código de rastreio único | Dois pacotes com o mesmo código confundiriam o balcão |
