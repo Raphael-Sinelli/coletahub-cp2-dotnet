@@ -142,7 +142,7 @@ dotnet run --project src/ColetaHub.Web --launch-profile http
 ./empacotar.ps1
 ```
 
-O script compila em Debug e Release, roda os testes e gera **`ColetaHub_CP2.zip`** com a pasta inteira: `.sln`, `src`, `tests`, `docs`, `bin/Debug` e `bin/Release`. Ficam de fora só `.vs` e `node_modules`. Feche o Visual Studio e pare a aplicação antes de rodar, porque um executável em uso impede o build.
+O script compila em Debug e Release, roda os testes e gera **`ColetaHub_CP2.zip`** com a pasta inteira: `.sln`, `src`, `tests`, `docs`, `bin/Debug` e `bin/Release`. Ficam de fora só os arquivos ignorados pelo Git (como `.vs` e `node_modules`); `bin` e `obj` entram mesmo sendo ignorados. Feche o Visual Studio e pare a aplicação antes de rodar, porque um executável em uso impede o build.
 
 ---
 
